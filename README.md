@@ -55,7 +55,7 @@ Without a MIDI keyboard you can use the on-screen keyboard or the computer keys:
 
 ### Modules
 
-Keyboard (note and velocity), Oscillator (sine, triangle, saw, square; octave, semitone, fine), **Sync Osc** (hard sync with modulatable ratio), **FM** (ratio and index, with an input to modulate the index), Noise, LFO, 3-input Mixer, **Ladder Filter** (24 dB/oct, resonant, with saturation), **High-pass**, ADSR, VCA, Mod Wheel, Delay (also **tempo-synced**), Reverb, Chorus, Output.
+Keyboard (note and velocity), Oscillator (sine, triangle, saw, square; octave, semitone, fine), **Sync Osc** (hard sync with modulatable ratio), **FM** (ratio and index, with an input to modulate the index), Noise, LFO, 3-input Mixer, **Ladder Filter** (24 dB/oct, resonant, with saturation), **High-pass**, ADSR, VCA, Mod Wheel, Delay (also **tempo-synced**), Reverb, Chorus, **Drive** (soft tanh saturation with 4x oversampling, tone control and automatic level compensation; master only, best placed before chorus and delay), Output.
 
 Modules to the left of the dashed line are **per voice** (copied up to 8 times); those on the right are **master** (once). A module's position decides which zone it belongs to.
 

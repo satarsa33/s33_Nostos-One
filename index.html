@@ -251,13 +251,14 @@ const DEF={
   delay:{label:"Delay",in:["in"],out:["out"],params:[P("time",0.02,1.2,0.01," s",1),P("fb",0,0.9,0.01,""),P("mix",0,1,0.01,""),{k:"sync",opts:["free","1/4","1/8","1/8.","1/8T","1/16","1/16."]}],init:{time:0.35,fb:0.4,mix:0.3,sync:"free"}},
   reverb:{label:"Reverb",in:["in"],out:["out"],params:[P("size",0.5,6,0.1," s",1),P("mix",0,1,0.01,"")],init:{size:2.5,mix:0.3}},
   modwheel:{label:"Mod Wheel",in:[],out:["out"],params:[],init:{}},
+  drive:{label:"Drive",in:["in"],out:["out"],params:[P("drive",0,1,0.01,""),P("tone",1500,16000,10," Hz",1),P("mix",0,1,0.01,"")],init:{drive:0.3,tone:9000,mix:1}},
   chorus:{label:"Chorus",in:["in"],out:["out"],params:[P("rate",0.1,5,0.01," Hz",1),P("depth",0,1,0.01,""),P("mix",0,1,0.01,"")],init:{rate:0.8,depth:0.5,mix:0.5}},
   output:{label:"Output",in:["in"],out:[],params:[P("level",0,1,0.01,"")],init:{level:0.25}}
 };
-const PALETTE=["osc","syncosc","fm","noise","lfo","mixer","ladder","hpf","adsr","vca","keyin","modwheel","delay","reverb","chorus","output"];
-const MASTER_ONLY=["output","delay","reverb","chorus"];
-const FAM={keyin:"src",osc:"src",syncosc:"src",fm:"src",noise:"src",lfo:"mod",adsr:"mod",ladder:"proc",hpf:"proc",vca:"proc",mixer:"proc",delay:"fx",reverb:"fx",chorus:"fx",modwheel:"mod",output:"out"};
-const LBL={cutoff:"cutoff",res:"resonance",a:"attack",d:"decay",s:"sustain",r:"release",rate:"rate",time:"time",fb:"feedback",mix:"mix",size:"size",level:"level",ratio:"ratio",index:"index",detune:"detune",oct:"octave",l1:"level 1",l2:"level 2",l3:"level 3",wave:"wave",amount:"amount",depth:"depth",glide:"glide",sync:"sync",semi:"semitones"}; // posizionati di default a destra, ma si possono spostare
+const PALETTE=["osc","syncosc","fm","noise","lfo","mixer","ladder","hpf","adsr","vca","keyin","modwheel","delay","reverb","chorus","drive","output"];
+const MASTER_ONLY=["output","delay","reverb","chorus","drive"];
+const FAM={keyin:"src",osc:"src",syncosc:"src",fm:"src",noise:"src",lfo:"mod",adsr:"mod",ladder:"proc",hpf:"proc",vca:"proc",mixer:"proc",delay:"fx",reverb:"fx",chorus:"fx",drive:"fx",modwheel:"mod",output:"out"};
+const LBL={cutoff:"cutoff",res:"resonance",a:"attack",d:"decay",s:"sustain",r:"release",rate:"rate",time:"time",fb:"feedback",mix:"mix",size:"size",level:"level",ratio:"ratio",index:"index",detune:"detune",oct:"octave",l1:"level 1",l2:"level 2",l3:"level 3",wave:"wave",amount:"amount",depth:"depth",glide:"glide",sync:"sync",drive:"drive",tone:"tone",semi:"semitones"}; // posizionati di default a destra, ma si possono spostare
 
 /* ---------- Modello patch ---------- */
 const KEY="synth-lavagna-v3"; const BW=1500, BH=620;
@@ -332,6 +333,16 @@ const TYPES={
     const set=p=>{ lfo.frequency.value=p.rate; dg[0].gain.value=p.depth*0.006; dg[1].gain.value=-p.depth*0.006; wet[0].gain.value=wet[1].gain.value=p.mix; dry.gain.value=1-p.mix*0.5; }; set(p);
     const all=[inp,dry,mg,lfo,...dl,...dg,...wet];
     return {ports:{in:inp,out:mg},update:set,stop(){ lfo.stop(); all.forEach(n=>n.disconnect()); }}; },
+  /* saturazione morbida: tanh con oversampling 4x, filtro di tono e compensazione del volume */
+  drive(ctx,p){ const inp=ctx.createGain(), dry=ctx.createGain(), pre=ctx.createGain(), ws=ctx.createWaveShaper(), post=ctx.createGain(), tone=ctx.createBiquadFilter(), wet=ctx.createGain(), out=ctx.createGain();
+    const N=4096, cv=new Float32Array(N); for(let i=0;i<N;i++){ const u=(i/(N-1))*2-1; cv[i]=Math.tanh(4*u); } ws.curve=cv; ws.oversample="4x";
+    tone.type="lowpass"; tone.Q.value=0.5;
+    inp.connect(dry); dry.connect(out); inp.connect(pre); pre.connect(ws); ws.connect(post); post.connect(tone); tone.connect(wet); wet.connect(out);
+    let first=true;
+    const set=p=>{ const k=1+p.drive*11, mk=0.3/Math.tanh(k*0.3), t=first?0:ctx.currentTime, sm=(a,v)=>{ if(first) a.value=v; else a.setTargetAtTime(v,t,0.02); };
+      sm(pre.gain,k/4); sm(post.gain,mk); sm(tone.frequency,p.tone); sm(wet.gain,p.mix); sm(dry.gain,1-p.mix); first=false; }; set(p);
+    const all=[inp,dry,pre,ws,post,tone,wet,out];
+    return {ports:{in:inp,out:out},update:set,stop(){all.forEach(n=>n.disconnect());}}; },
   noise(ctx){ const b=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate), d=b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
     const n=ctx.createBufferSource(); n.buffer=b; n.loop=true; n.start();
     return {ports:{out:n},stop(){n.stop();n.disconnect();}}; },
@@ -843,7 +854,7 @@ fillPre();
 
 /* ---------- Pannello ---------- */
 let view="panel";
-const RANK={keyin:0,modwheel:0,osc:1,syncosc:1,fm:1,noise:1,lfo:2,mixer:3,ladder:4,hpf:4,adsr:5,vca:6,chorus:7,delay:8,reverb:9,output:10};
+const RANK={keyin:0,modwheel:0,osc:1,syncosc:1,fm:1,noise:1,lfo:2,mixer:3,ladder:4,hpf:4,adsr:5,vca:6,drive:6.5,chorus:7,delay:8,reverb:9,output:10};
 function subtitle(m){ const t=[]; patch.cables.filter(c=>c.from.split(".")[0]===m.id).forEach(c=>{ const [tm,tp]=c.to.split("."), x=mod(tm);
     const w=DEF[x.type].label+((tp==="in"||tp==="in1"||tp==="in2"||tp==="in3")?"":" · "+PL[tp]); if(!t.includes(w)) t.push(w); }); return t.length?"→ "+t.join(", "):""; }
 function renderAuto(host){
@@ -879,7 +890,7 @@ function updateMon(){
 /* ---------- Modelli di pannello su misura ---------- */
 let panelMode="model";
 const ENV=id=>[[id,"a","A"],[id,"d","D"],[id,"s","S"],[id,"r","R"]];
-const FX=[["cho1","rate","Cho Rate"],["cho1","depth","Cho Depth"],["cho1","mix","Cho mix"],["dly1","time","Delay"],["dly1","sync","Sync"],["dly1","fb","Feedback"],["dly1","mix","Dly mix"],["rev1","size","Reverb"],["rev1","mix","Rev mix"]];
+const FX=[["drive1","drive","Drive"],["drive1","tone","Drv tone"],["drive1","mix","Drv mix"],["cho1","rate","Cho Rate"],["cho1","depth","Cho Depth"],["cho1","mix","Cho mix"],["dly1","time","Delay"],["dly1","sync","Sync"],["dly1","fb","Feedback"],["dly1","mix","Dly mix"],["rev1","size","Reverb"],["rev1","mix","Rev mix"]];
 const TEMPLATES={
   mini:{name:"Minimoog Style",need:["osc1","flt1","env1"],sections:[
     ["Controller",[["kbd","glide","Glide"],["lfo1","rate","LFO"]]],
