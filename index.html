@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>S33 - Nostos One</title>
-<meta name="description" content="Sintetizzatore modulare polifonico a lavagna, da suonare con una tastiera MIDI.">
+<meta name="description" content="Polyphonic modular synthesizer with a patch board, played from a MIDI keyboard.">
 <meta name="theme-color" content="#14161a">
 <meta name="application-name" content="Nostos One">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -197,18 +197,18 @@ input[type=range]{width:100%;accent-color:var(--acc)}
 <body>
 <svg width="0" height="0" style="position:absolute;border:0;background:none" aria-hidden="true"><defs><radialGradient id="kcap" cx=".34" cy=".28" r=".95"><stop offset="0" style="stop-color:var(--cap1)"/><stop offset="1" style="stop-color:var(--cap2)"/></radialGradient><linearGradient id="krim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--rim1)"/><stop offset="1" style="stop-color:var(--rim2)"/></linearGradient><radialGradient id="kdish" cx=".62" cy=".7" r=".9"><stop offset="0" style="stop-color:var(--cap1)"/><stop offset="1" style="stop-color:var(--cap2)"/></radialGradient></defs></svg>
 <h1 id="brand" aria-label="S33 - Nostos One"><span class="bb"></span><span class="bx">S33</span><span class="bn">NOSTOS <b>ONE</b></span><span class="bl"></span><span class="bc">POLYPHONIC MODULAR</span></h1>
-<div class="tabs"><button data-v="panel" class="on">Pannello</button><button data-v="board">Lavagna</button></div>
+<div class="tabs"><button data-v="panel" class="on">Panel</button><button data-v="board">Board</button></div>
 <div class="bar">
-  <button id="go">Avvia audio</button>
-  <label>Voci <select id="nv"><option>1</option><option>4</option><option selected>8</option></select></label>
-  <label>Veste <select id="skin"><option value="">Automatica</option><option value="moog">Moog avorio</option><option value="prophet">Prophet nero</option><option value="grafite">Grafite</option><option value="neon">Neon</option><option value="blueprint">Blueprint</option></select></label>
-  <label>Preset <select id="pre"></select></label><button id="savep">Salva come…</button><button id="exp">Esporta</button><button id="expAll">Esporta miei</button><button id="imp">Importa</button><input type="file" id="impf" accept=".json,application/json" class="hide">
+  <button id="go">Start audio</button>
+  <label>Voices <select id="nv"><option>1</option><option>4</option><option selected>8</option></select></label>
+  <label>Skin <select id="skin"><option value="">Automatic</option><option value="moog">Moog Ivory</option><option value="prophet">Prophet Black</option><option value="grafite">Graphite</option><option value="neon">Neon</option><option value="blueprint">Blueprint</option></select></label>
+  <label>Preset <select id="pre"></select></label><button id="savep">Save as…</button><button id="exp">Export</button><button id="expAll">Export mine</button><button id="imp">Import</button><input type="file" id="impf" accept=".json,application/json" class="hide">
   <span class="sp"></span>
-  <span id="boardTools" style="display:contents"><span>Aggiungi:</span><span id="pal"></span>
-  <button id="reset">Ripristina patch</button></span>
+  <span id="boardTools" style="display:contents"><span>Add:</span><span id="pal"></span>
+  <button id="reset">Reset patch</button></span>
 </div>
 <div id="boardView" class="hide"><svg id="bd" viewBox="0 0 1500 620"></svg></div>
-<div class="bar"><span id="vm">Voci: audio spento</span><span class="sp"></span><button id="load">Prova carico (accordo a piena polifonia)</button></div>
+<div class="bar"><span id="vm">Voices: audio off</span><span class="sp"></span><button id="load">Load test (full-polyphony chord)</button></div>
 <div id="msg"></div>
 <div id="insp" class="hide"></div>
 <div id="panelView">
@@ -219,49 +219,49 @@ input[type=range]{width:100%;accent-color:var(--acc)}
     <div class="spl"></div>
     <div class="mon" style="flex-grow:1.5"><canvas id="spec"></canvas></div>
   </div>
-  <div class="pn-bar hide" id="pmBar"><span>Vista</span><button data-pm="model">Modello</button><button data-pm="auto">Automatica</button></div>
+  <div class="pn-bar hide" id="pmBar"><span>View</span><button data-pm="model">Model</button><button data-pm="auto">Automatic</button></div>
   <div id="tools"><div id="arpBar" class="pn-card arp"></div><div id="velBar" class="pn-card arp"></div></div>
   <div id="cards"></div>
   <div class="pn-keys">
     <div class="wh"><div class="wheel" id="wPitch"><i></i></div><div class="wlab">PITCH</div></div>
     <div class="wh"><div class="wheel" id="wMod"><i></i></div><div class="wlab">MOD</div></div>
     <div id="kbd"></div>
-    <div class="oct"><button id="oUp">Ott +</button><div id="octLed" class="octled"><b id="octV">0</b><span id="octR">C3–C6</span></div><button id="oDn">Ott −</button></div>
+    <div class="oct"><button id="oUp">Oct +</button><div id="octLed" class="octled"><b id="octV">0</b><span id="octR">C3–C6</span></div><button id="oDn">Oct −</button></div>
   </div>
 </div>
-<div class="k" id="st">Audio spento. Trascina da un cerchio all’altro per collegare; clicca modulo o cavo per modificarlo; doppio clic su un cavo selezionato per eliminarlo. Suona con la tastiera MIDI (Chrome) o con i tasti A–K.</div>
+<div class="k" id="st">Audio off. Drag from one circle to another to connect; click a module or cable to edit it; double-click a selected cable to delete it. Play with a MIDI keyboard (Chrome) or the A–K keys.</div>
 
 <script>
 "use strict";
 const W=130, ROW=22, HEAD=26;
-const PL={pitch:"nota",freq:"freq",out:"uscita",in:"ingresso",cutoffMod:"taglio",gain:"livello",in1:"1",in2:"2",in3:"3",index:"indice",ratio:"rapporto",vel:"velocity"};
+const PL={pitch:"pitch",freq:"freq",out:"out",in:"in",cutoffMod:"cutoff",gain:"gain",in1:"1",in2:"2",in3:"3",index:"index",ratio:"ratio",vel:"velocity"};
 const P=(k,min,max,step,unit,log)=>({k,min,max,step,unit,log});
 const DEF={
-  keyin:{label:"Tastiera",in:[],out:["pitch","vel"],params:[P("glide",0,0.6,0.01," s")],init:{glide:0}},
-  osc:{label:"Oscillatore",in:["freq"],out:["out"],params:[{k:"wave",opts:["sawtooth","square","triangle","sine"]},P("oct",-2,2,1," ott"),P("semi",-12,12,1," st"),P("detune",-50,50,0.5," ct")],init:{wave:"sawtooth",oct:0,semi:0,detune:0}},
+  keyin:{label:"Keyboard",in:[],out:["pitch","vel"],params:[P("glide",0,0.6,0.01," s")],init:{glide:0}},
+  osc:{label:"Oscillator",in:["freq"],out:["out"],params:[{k:"wave",opts:["sawtooth","square","triangle","sine"]},P("oct",-2,2,1," oct"),P("semi",-12,12,1," st"),P("detune",-50,50,0.5," ct")],init:{wave:"sawtooth",oct:0,semi:0,detune:0}},
   fm:{label:"FM",in:["freq","index"],out:["out"],params:[P("ratio",0.25,8,0.25,"",1),P("index",0,10,0.05,"")],init:{ratio:2,index:2}},
-  noise:{label:"Rumore",in:[],out:["out"],params:[],init:{}},
-  hpf:{label:"Passa-alto",in:["in","cutoffMod"],out:["out"],params:[P("cutoff",100,12000,1," Hz",1),P("res",0,1,0.01,"")],init:{cutoff:1500,res:0.1}},
-  syncosc:{label:"Osc sync",in:["freq","ratio"],out:["out"],params:[P("ratio",1,8,0.01,"",1)],init:{ratio:2.2}},
+  noise:{label:"Noise",in:[],out:["out"],params:[],init:{}},
+  hpf:{label:"High-pass",in:["in","cutoffMod"],out:["out"],params:[P("cutoff",100,12000,1," Hz",1),P("res",0,1,0.01,"")],init:{cutoff:1500,res:0.1}},
+  syncosc:{label:"Sync Osc",in:["freq","ratio"],out:["out"],params:[P("ratio",1,8,0.01,"",1)],init:{ratio:2.2}},
   mixer:{label:"Mixer",in:["in1","in2","in3"],out:["out"],params:[P("l1",0,1,0.01,""),P("l2",0,1,0.01,""),P("l3",0,1,0.01,"")],init:{l1:0.5,l2:0.5,l3:0}},
   lfo:{label:"LFO",in:[],out:["out"],params:[P("rate",0.1,20,0.1," Hz",1)],init:{rate:5}},
-  ladder:{label:"Filtro",in:["in","cutoffMod"],out:["out"],params:[P("cutoff",80,8000,1," Hz",1),P("res",0,1,0.01,"")],init:{cutoff:500,res:0.25}},
+  ladder:{label:"Filter",in:["in","cutoffMod"],out:["out"],params:[P("cutoff",80,8000,1," Hz",1),P("res",0,1,0.01,"")],init:{cutoff:500,res:0.25}},
   adsr:{label:"ADSR",in:[],out:["out"],params:[P("a",0.002,2,0.001," s",1),P("d",0.01,8,0.01," s",1),P("s",0,1,0.01,""),P("r",0.01,4,0.01," s",1)],init:{a:0.01,d:0.3,s:0.5,r:0.4}},
   vca:{label:"VCA",in:["in","gain"],out:["out"],params:[],init:{}},
-  delay:{label:"Delay",in:["in"],out:["out"],params:[P("time",0.02,1.2,0.01," s",1),P("fb",0,0.9,0.01,""),P("mix",0,1,0.01,""),{k:"sync",opts:["libero","1/4","1/8","1/8.","1/8T","1/16","1/16."]}],init:{time:0.35,fb:0.4,mix:0.3,sync:"libero"}},
-  reverb:{label:"Riverbero",in:["in"],out:["out"],params:[P("size",0.5,6,0.1," s",1),P("mix",0,1,0.01,"")],init:{size:2.5,mix:0.3}},
-  modwheel:{label:"Rotella mod",in:[],out:["out"],params:[],init:{}},
+  delay:{label:"Delay",in:["in"],out:["out"],params:[P("time",0.02,1.2,0.01," s",1),P("fb",0,0.9,0.01,""),P("mix",0,1,0.01,""),{k:"sync",opts:["free","1/4","1/8","1/8.","1/8T","1/16","1/16."]}],init:{time:0.35,fb:0.4,mix:0.3,sync:"free"}},
+  reverb:{label:"Reverb",in:["in"],out:["out"],params:[P("size",0.5,6,0.1," s",1),P("mix",0,1,0.01,"")],init:{size:2.5,mix:0.3}},
+  modwheel:{label:"Mod Wheel",in:[],out:["out"],params:[],init:{}},
   chorus:{label:"Chorus",in:["in"],out:["out"],params:[P("rate",0.1,5,0.01," Hz",1),P("depth",0,1,0.01,""),P("mix",0,1,0.01,"")],init:{rate:0.8,depth:0.5,mix:0.5}},
-  output:{label:"Uscita",in:["in"],out:[],params:[P("level",0,1,0.01,"")],init:{level:0.25}}
+  output:{label:"Output",in:["in"],out:[],params:[P("level",0,1,0.01,"")],init:{level:0.25}}
 };
 const PALETTE=["osc","syncosc","fm","noise","lfo","mixer","ladder","hpf","adsr","vca","keyin","modwheel","delay","reverb","chorus","output"];
 const MASTER_ONLY=["output","delay","reverb","chorus"];
 const FAM={keyin:"src",osc:"src",syncosc:"src",fm:"src",noise:"src",lfo:"mod",adsr:"mod",ladder:"proc",hpf:"proc",vca:"proc",mixer:"proc",delay:"fx",reverb:"fx",chorus:"fx",modwheel:"mod",output:"out"};
-const LBL={cutoff:"taglio",res:"risonanza",a:"attacco",d:"decadim.",s:"sostegno",r:"rilascio",rate:"velocità",time:"tempo",fb:"feedback",mix:"mix",size:"durata",level:"livello",ratio:"rapporto",index:"indice",detune:"accordatura",oct:"ottava",l1:"liv. 1",l2:"liv. 2",l3:"liv. 3",wave:"onda",amount:"quantità",depth:"profondità",glide:"portamento",sync:"sync",semi:"semitoni"}; // posizionati di default a destra, ma si possono spostare
+const LBL={cutoff:"cutoff",res:"resonance",a:"attack",d:"decay",s:"sustain",r:"release",rate:"rate",time:"time",fb:"feedback",mix:"mix",size:"size",level:"level",ratio:"ratio",index:"index",detune:"detune",oct:"octave",l1:"level 1",l2:"level 2",l3:"level 3",wave:"wave",amount:"amount",depth:"depth",glide:"glide",sync:"sync",semi:"semitones"}; // posizionati di default a destra, ma si possono spostare
 
 /* ---------- Modello patch ---------- */
 const KEY="synth-lavagna-v3"; const BW=1500, BH=620;
-function defaultPatch(){ return { v:5, div:1040, name:"Patch di partenza", desc:"Due sagome leggermente scordate nel mixer, filtro e delay.", panel:"mini",
+function defaultPatch(){ return { v:5, div:1040, name:"Init Patch", desc:"Two slightly detuned waves in the mixer, then filter and delay.", panel:"mini",
   modules:[
     {id:"kbd",type:"keyin",x:20,y:50,scope:"voice",params:{}},
     {id:"osc1",type:"osc",x:190,y:40,scope:"voice",params:{wave:"sawtooth",detune:0}},
@@ -282,6 +282,8 @@ function defaultPatch(){ return { v:5, div:1040, name:"Patch di partenza", desc:
     {from:"dly1.out",to:"rev1.in"},{from:"rev1.out",to:"out.in"}
   ]}; }
 let patch; try{ patch=JSON.parse(localStorage.getItem(KEY)); if(!patch||!patch.modules) throw 0; }catch(e){ patch=defaultPatch(); }
+const fixLegacy=p=>{ try{ p.modules.forEach(m=>{ if(m.params&&m.params.sync==="libero") m.params.sync="free"; }); }catch(e){} };
+fixLegacy(patch);
 if(!patch.v){ patch.v=5; patch.div+=100; patch.modules.forEach(m=>{ if(m.scope==="master") m.x+=100; }); }
 let loading=false;
 const save=()=>{ if(!loading) patch.mod=true; try{ localStorage.setItem(KEY,JSON.stringify(patch)); }catch(e){} if(typeof updateMon==="function") updateMon(); };
@@ -439,8 +441,8 @@ function rebuildAll(){
   stopAll(); master=build("master"); wire(master); Object.values(master.inst).forEach(m=>m.tap&&ctx.an&&m.tap.connect(ctx.an)); voices=[];
   for(let i=0;i<+nv.value;i++){ const v=build("voice"); wire(v); voices.push(v); }
 }
-const VELK="synth-vel", VEL={on:true,vol:0.6,bright:0.5,curve:"normale"}, VCURVE={morbida:0.65,normale:1,dura:1.6}, lastVel={};
-try{ const o=JSON.parse(localStorage.getItem(VELK)||"null"); if(o){ if(typeof o.on==="boolean") VEL.on=o.on; if(Number.isFinite(o.vol)) VEL.vol=Math.max(0,Math.min(1,o.vol)); if(Number.isFinite(o.bright)) VEL.bright=Math.max(0,Math.min(1,o.bright)); if(VCURVE[o.curve]) VEL.curve=o.curve; } }catch(e){}
+const VELK="synth-vel", VEL={on:true,vol:0.6,bright:0.5,curve:"normal"}, VCURVE={soft:0.65,normal:1,hard:1.6}, lastVel={};
+try{ const o=JSON.parse(localStorage.getItem(VELK)||"null"); if(o){ if(typeof o.on==="boolean") VEL.on=o.on; if(Number.isFinite(o.vol)) VEL.vol=Math.max(0,Math.min(1,o.vol)); if(Number.isFinite(o.bright)) VEL.bright=Math.max(0,Math.min(1,o.bright)); { const cc={morbida:"soft",normale:"normal",dura:"hard"}[o.curve]||o.curve; if(VCURVE[cc]) VEL.curve=cc; } } }catch(e){}
 const saveVel=()=>{ try{ localStorage.setItem(VELK,JSON.stringify(VEL)); }catch(e){} };
 const velOn=()=>VEL.on&&!(patch&&patch.noVel);
 function velApply(v,vel,t){ const on=velOn(), x=Math.pow(Math.max(0,Math.min(1,vel)),VCURVE[VEL.curve]||1);
@@ -470,13 +472,13 @@ function noteOff(note,at,fromArp){ if(!fromArp){ lit(note,false); if(patch.arp&&
 /* ---------- Ingressi ---------- */
 const st=document.getElementById("st");
 function initMidi(){
-  if(!navigator.requestMIDIAccess){ st.textContent="Audio attivo. MIDI non disponibile in questo browser: usa Chrome o i tasti del computer."; return; }
+  if(!navigator.requestMIDIAccess){ st.textContent="Audio on. MIDI is not available in this browser: use Chrome or the computer keys."; return; }
   navigator.requestMIDIAccess().then(a=>{
     const hook=()=>{ let n=0; a.inputs.forEach(i=>{ n++; i.onmidimessage=e=>{ const [s,d1,d2]=e.data,cmd=s&0xf0;
       if(cmd===0x90&&d2>0) noteOn(d1,undefined,false,d2/127); else if(cmd===0x80||(cmd===0x90&&d2===0)) noteOff(d1); else if(cmd===0xE0) setBendN(((d2<<7|d1)-8192)/8192,false); else if(cmd===0xB0&&d1===1) setMod(d2/127,false); }; });
-      st.textContent="Audio attivo. Ingressi MIDI trovati: "+n+"."; };
+      st.textContent="Audio on. MIDI inputs found: "+n+"."; };
     hook(); a.onstatechange=hook;
-  }).catch(()=>{ st.textContent="Audio attivo. Accesso MIDI negato: usa i tasti del computer."; });
+  }).catch(()=>{ st.textContent="Audio on. MIDI access denied: use the computer keys."; });
 }
 const KM={a:60,w:61,s:62,e:63,d:64,f:65,t:66,g:67,y:68,h:69,u:70,j:71,k:72};
 addEventListener("keydown",e=>{ if(e.repeat||e.metaKey||e.ctrlKey||/INPUT|SELECT/.test(e.target.tagName)) return; const n=KM[e.key]; if(n) noteOn(n,undefined,false,0.8); });
@@ -491,7 +493,7 @@ const curve=(a,b)=>{ const dx=b[0]-a[0], dy=b[1]-a[1], dist=Math.hypot(dx,dy), s
   return `M${a[0]},${a[1]} C${a[0]+d},${a[1]+sag} ${b[0]-d},${b[1]+sag} ${b[0]},${b[1]}`; };
 function render(){
   const n=nv.value; let s=`<rect x="0" y="0" width="${patch.div}" height="${BH}" fill="var(--zv)"/><rect x="${patch.div}" y="0" width="${BW-patch.div}" height="${BH}" fill="var(--zm)"/>`;
-  s+=`<text class="zl" x="10" y="18">PER VOCE · copiato ${n} volte</text><text class="zl" x="${patch.div+10}" y="18">MASTER · una sola volta</text>`;
+  s+=`<text class="zl" x="10" y="18">PER VOICE · copied ${n} times</text><text class="zl" x="${patch.div+10}" y="18">MASTER · only once</text>`;
   s+=`<g data-div="1" style="cursor:ew-resize"><line x1="${patch.div}" y1="0" x2="${patch.div}" y2="${BH}" stroke="var(--cab)" stroke-dasharray="5 4"/><rect x="${patch.div-6}" y="0" width="12" height="${BH}" fill="transparent"/></g>`;
   patch.cables.forEach((c,i)=>{ const [fm,fp]=c.from.split("."),[tm,tp]=c.to.split(".");
     const d=curve(pp(mod(fm),fp,"out"),pp(mod(tm),tp,"in"));
@@ -533,9 +535,9 @@ addEventListener("pointerup",e=>{
     if(port){ const [id,name,dir]=port.dataset.port.split("|"); if(dir!==d.dir&&id!==d.id){
       const o=d.dir==="out"?{id:d.id,name:d.name}:{id,name}, i=d.dir==="out"?{id,name}:{id:d.id,name:d.name};
       const c={from:o.id+"."+o.name,to:i.id+"."+i.name};
-      if(patch.cables.some(x=>x.from===c.from&&x.to===c.to)) msg("Questo cavo esiste già.");
-      else if(mod(o.id).scope==="master"&&mod(i.id).scope==="voice") msg("Dal master non si torna alle voci.");
-      else if(reaches(i.id,o.id)) msg("Cavo rifiutato: crea un anello di retroazione, non ancora supportato.");
+      if(patch.cables.some(x=>x.from===c.from&&x.to===c.to)) msg("This cable already exists.");
+      else if(mod(o.id).scope==="master"&&mod(i.id).scope==="voice") msg("The master section cannot feed back into the voices.");
+      else if(reaches(i.id,o.id)) msg("Cable rejected: it would create a feedback loop, which is not supported yet.");
       else{ if(i.name==="cutoffMod") c.amount=2000; else if(i.name==="freq"&&mod(o.id).type!=="keyin") c.amount=10; else if(i.name==="index") c.amount=3; else if(i.name==="ratio") c.amount=2;
         patch.cables.push(c); selCab=c; sel=null; commit(); return; } } }
     render(); return;
@@ -543,7 +545,7 @@ addEventListener("pointerup",e=>{
   const before=patch.modules.map(m=>m.scope+m.id);
   patch.modules.forEach(m=>m.scope=scopeOf(m));
   if(!valid()){ if(d.type==="mod"){ d.m.x=d.x0; d.m.y=d.y0; } else patch.div=d.d0;
-    patch.modules.forEach(m=>m.scope=scopeOf(m)); msg("Posizione non valida: Tastiera sta a sinistra, Uscita a destra, e il master non torna alle voci."); render(); return; }
+    patch.modules.forEach(m=>m.scope=scopeOf(m)); msg("Invalid position: Keyboard stays on the left, Output on the right, and the master cannot feed back into the voices."); render(); return; }
   if(before.join()!==patch.modules.map(m=>m.scope+m.id).join()) commit(); else { save(); render(); }
 });
 function commit(){ save(); if(ctx) rebuildAll(); render(); if(view==="panel") renderPanel(); arpSync(); }
@@ -572,7 +574,7 @@ function inspector(){
   const btn=(txt,fn)=>{ const b=document.createElement("button"); b.textContent=txt; b.style.marginTop="10px"; b.onclick=fn; el.appendChild(b); };
   if(sel){ const d=DEF[sel.type], fam=FAM[sel.type], id=sel.id, pr=sel.params;
     const live=()=>[master,...voices].forEach(v=>v&&v.inst[id]&&v.inst[id].update&&v.inst[id].update(pr));
-    el.insertAdjacentHTML("beforeend",`<b style="color:var(--f-${fam})">${d.label}</b> <span style="color:var(--mut)">(${id}, ${sel.scope==="master"?"master":"per voce"})</span>`);
+    el.insertAdjacentHTML("beforeend",`<b style="color:var(--f-${fam})">${d.label}</b> <span style="color:var(--mut)">(${id}, ${sel.scope==="master"?"master":"per voice"})</span>`);
     const w=document.createElement("div"); w.className="kns"; el.appendChild(w);
     d.params.forEach(p=>{
       if(p.opts){ const r=document.createElement("div"); r.className="kn"; r.innerHTML=`<div class="l">${LBL[p.k]}</div><select style="margin:14px 0">${p.opts.map(o=>`<option${o===pr[p.k]?" selected":""}>${o}</option>`).join("")}</select>`;
@@ -580,20 +582,20 @@ function inspector(){
       else knob(w,LBL[p.k]||p.k,pr,p.k,p.min,p.max,p.step,p.unit,p.log,live,fam);
     });
     if(!d.params.length) w.innerHTML=`<span style="color:var(--mut)">Nessun parametro.</span>`;
-    btn("Elimina modulo",()=>{ patch.modules=patch.modules.filter(m=>m!==sel); patch.cables=patch.cables.filter(c=>c.from.split(".")[0]!==id&&c.to.split(".")[0]!==id); sel=null; commit(); });
+    btn("Delete module",()=>{ patch.modules=patch.modules.filter(m=>m!==sel); patch.cables=patch.cables.filter(c=>c.from.split(".")[0]!==id&&c.to.split(".")[0]!==id); sel=null; commit(); });
   } else if(selCab){ const fam=FAM[mod(selCab.from.split(".")[0]).type], c=selCab;
-    el.insertAdjacentHTML("beforeend",`<b>Cavo</b> <span style="color:var(--mut)">${c.from} → ${c.to} · doppio clic per eliminarlo</span>`);
+    el.insertAdjacentHTML("beforeend",`<b>Cable</b> <span style="color:var(--mut)">${c.from} → ${c.to} · double-click to delete</span>`);
     if(c.amount!==undefined){ const tpn=c.to.split(".")[1], R=amtR(tpn,mod(c.from.split(".")[0]).type), w=document.createElement("div"); w.className="kns"; el.appendChild(w);
       knob(w,LBL.amount,c,"amount",R[0],R[1],R[2],R[3],false,()=>voices.forEach(v=>{ const g=v.gains.get(c); if(g) g.gain.value=c.amount; }),fam); }
-    btn("Elimina cavo",()=>{ patch.cables=patch.cables.filter(x=>x!==c); selCab=null; commit(); });
-  } else el.innerHTML=`<span style="color:var(--mut)">Seleziona un modulo o un cavo per modificarlo. Manopole: trascina in verticale (Maiusc per il fine), oppure usa la rotella.</span>`;
+    btn("Delete cable",()=>{ patch.cables=patch.cables.filter(x=>x!==c); selCab=null; commit(); });
+  } else el.innerHTML=`<span style="color:var(--mut)">Select a module or a cable to edit it. Knobs: drag vertically (Shift for fine), or use the scroll wheel.</span>`;
 }
 
 /* ---------- Indicatore voci e prova di carico ---------- */
 setInterval(()=>{ const el=document.getElementById("vm"); if(!ctx){ return; }
   const held=voices.filter(v=>v.held).length;
-  el.textContent="Voci: "+voices.map(v=>v.held?"●":"○").join(" ")+"  ("+held+"/"+voices.length+" in uso)  ·  latenza base "+Math.round(ctx.baseLatency*1000)+" ms"; },100);
-document.getElementById("load").onclick=()=>{ if(!ctx){ msg("Avvia prima l’audio."); return; }
+  el.textContent="Voices: "+voices.map(v=>v.held?"●":"○").join(" ")+"  ("+held+"/"+voices.length+" in use)  ·  base latency "+Math.round(ctx.baseLatency*1000)+" ms"; },100);
+document.getElementById("load").onclick=()=>{ if(!ctx){ msg("Start the audio first."); return; }
   const base=[36,43,48,52,55,59,62,67], notes=base.slice(0,voices.length);
   notes.forEach(n=>noteOn(n,undefined,false,0.8)); setTimeout(()=>notes.forEach(n=>noteOff(n)),2500); };
 
@@ -604,135 +606,135 @@ function mk(mods,cabs){
     cables:cabs.map(t=>{ const [f,rest]=t.split(">"), [to,amt]=rest.split(":"); const c={from:f,to}; if(amt!==undefined) c.amount=+amt; return c; }) };
 }
 const PRESETS=[
- {name:"Patch di partenza",panel:"mini",desc:"Due sagome leggermente scordate nel mixer, filtro e delay.",make:defaultPatch},
- {name:"Basso Moog",panel:"mini",desc:"Sega più quadra un’ottava sotto, filtro che si chiude veloce.",make:()=>mk(
+ {name:"Init Patch",group:"Basics",panel:"mini",desc:"Two slightly detuned waves in the mixer, then filter and delay.",make:defaultPatch},
+ {name:"Moog Bass",group:"Bass",panel:"mini",desc:"Saw plus square one octave down, with a filter that closes fast.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth"}],["osc2","osc",1,1,{wave:"square",oct:-1}],["mix1","mixer",2,0,{l1:0.6,l2:0.6,l3:0}],
    ["flt1","ladder",3,0,{cutoff:300,res:0.45}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.004,d:0.28,s:0.1,r:0.15}],["env2","adsr",4,1,{a:0.004,d:0.2,s:0.85,r:0.12}],["out","output",100,0,{level:0.3}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3600","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>out.in"])},
- {name:"Pad caldo",panel:"pad",desc:"Tre seghe scordate, attacco lento, filtro mosso da un LFO lento, delay e riverbero ampio.",make:()=>mk(
+ {name:"Warm Pad",group:"Strings & Pads",panel:"pad",desc:"Three detuned saws, slow attack, filter moved by a slow LFO, delay and a wide reverb.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",detune:-12}],["osc2","osc",1,1,{wave:"sawtooth"}],["osc3","osc",1,2,{wave:"sawtooth",detune:12}],
    ["mix1","mixer",2,0,{l1:0.4,l2:0.4,l3:0.4}],["lfo1","lfo",2,2,{rate:0.35}],["flt1","ladder",3,0,{cutoff:1400,res:0.1}],["amp1","vca",4,0],
    ["env1","adsr",3,1,{a:0.7,d:1,s:0.6,r:1.5}],["env2","adsr",4,1,{a:0.9,d:0.6,s:0.85,r:2}],
    ["cho1","chorus",100,1,{rate:0.7,depth:0.55,mix:0.5}],["dly1","delay",100,0,{time:0.45,fb:0.4,mix:0.22}],["rev1","reverb",101,0,{size:4,mix:0.45}],["out","output",102,0,{level:0.25}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","mix1.out>flt1.in",
    "env1.out>flt1.cutoffMod:1200","lfo1.out>flt1.cutoffMod:400","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Archi",panel:"pad",desc:"Tre seghe appena scordate, attacco morbido e un chorus ampio: l’ensemble d’archi dei sintetizzatori anni ’70.",make:()=>mk(
+ {name:"Strings 70s",group:"Strings & Pads",panel:"pad",desc:"Three slightly detuned saws, soft attack and a wide chorus: the 1970s synth string ensemble.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",detune:-10}],["osc2","osc",1,1,{wave:"sawtooth"}],["osc3","osc",1,2,{wave:"sawtooth",detune:10}],["mix1","mixer",2,0,{l1:0.4,l2:0.4,l3:0.4}],
    ["lfo1","lfo",2,2,{rate:0.2}],["flt1","ladder",3,0,{cutoff:3200,res:0.05}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.5,d:0.8,s:0.8,r:0.9}],["env2","adsr",4,1,{a:0.55,d:0.4,s:0.9,r:1.1}],
    ["cho1","chorus",100,0,{rate:0.6,depth:0.7,mix:0.6}],["rev1","reverb",101,0,{size:3,mix:0.3}],["out","output",102,0,{level:0.25}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","mix1.out>flt1.in","env1.out>flt1.cutoffMod:900","lfo1.out>flt1.cutoffMod:300",
    "flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Supersaw",panel:"pad",desc:"Tre seghe molto scordate (±25 centesimi), attacco immediato, filtro aperto: il suono ampio e brillante da trance.",make:()=>mk(
+ {name:"Supersaw",group:"Strings & Pads",panel:"pad",desc:"Three heavily detuned saws (±25 cents), instant attack, open filter: the wide, bright trance sound.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",detune:-25}],["osc2","osc",1,1,{wave:"sawtooth"}],["osc3","osc",1,2,{wave:"sawtooth",detune:25}],["mix1","mixer",2,0,{l1:0.35,l2:0.35,l3:0.35}],
    ["flt1","ladder",3,0,{cutoff:5200,res:0.08}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.005,d:0.4,s:0.9,r:0.3}],["env2","adsr",4,1,{a:0.008,d:0.3,s:0.9,r:0.35}],
    ["cho1","chorus",100,0,{rate:0.5,depth:0.6,mix:0.5}],["dly1","delay",101,0,{time:0.36,fb:0.3,mix:0.18}],["rev1","reverb",102,0,{size:2,mix:0.2}],["out","output",100,1,{level:0.25}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","mix1.out>flt1.in","env1.out>flt1.cutoffMod:1800",
    "flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Aria",panel:"pad",desc:"Triangolare e sega con un soffio di rumore, filtro risonante che respira lentamente: un pad etereo e quasi vocale.",make:()=>mk(
+ {name:"Air Pad",group:"Strings & Pads",panel:"pad",desc:"Triangle and saw with a breath of noise and a resonant filter that slowly breathes: an ethereal, almost vocal pad.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"triangle"}],["osc2","osc",1,1,{wave:"sawtooth",detune:8}],["noise1","noise",1,2],["mix1","mixer",2,0,{l1:0.6,l2:0.3,l3:0.08}],
    ["lfo1","lfo",2,2,{rate:0.3}],["flt1","ladder",3,0,{cutoff:1800,res:0.35}],["amp1","vca",4,0],["env1","adsr",3,1,{a:1.2,d:1,s:0.7,r:2}],["env2","adsr",4,1,{a:1.2,d:0.5,s:0.85,r:2.5}],
    ["cho1","chorus",100,0,{rate:0.4,depth:0.5,mix:0.5}],["rev1","reverb",101,0,{size:4.5,mix:0.45}],["out","output",102,0,{level:0.25}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","noise1.out>mix1.in3","mix1.out>flt1.in","env1.out>flt1.cutoffMod:1200","lfo1.out>flt1.cutoffMod:700",
    "flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Abisso",panel:"pad",desc:"Due seghe larghe e un seno un’ottava sotto, filtro scuro che si apre in due secondi, delay lungo e riverbero profondo.",make:()=>mk(
+ {name:"Abyss Pad",group:"Strings & Pads",panel:"pad",desc:"Two wide saws and a sine an octave down, a dark filter that opens over two seconds, long delay and deep reverb.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",detune:-12}],["osc2","osc",1,1,{wave:"sawtooth",detune:12}],["osc3","osc",1,2,{wave:"sine",oct:-1}],["mix1","mixer",2,0,{l1:0.35,l2:0.35,l3:0.5}],
    ["lfo1","lfo",2,2,{rate:0.12}],["flt1","ladder",3,0,{cutoff:450,res:0.2}],["amp1","vca",4,0],["env1","adsr",3,1,{a:2,d:1.5,s:0.6,r:3}],["env2","adsr",4,1,{a:1.8,d:0.5,s:0.9,r:3.5}],
    ["cho1","chorus",100,0,{rate:0.3,depth:0.6,mix:0.4}],["dly1","delay",101,0,{time:0.55,fb:0.45,mix:0.2}],["rev1","reverb",102,0,{size:6,mix:0.55}],["out","output",100,1,{level:0.25}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","mix1.out>flt1.in","env1.out>flt1.cutoffMod:1600","lfo1.out>flt1.cutoffMod:250",
    "flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Ottoni",panel:"mini",desc:"Due seghe, attacco morbido, il filtro si apre dopo l’attacco.",make:()=>mk(
+ {name:"Brass",group:"Leads & Brass",panel:"mini",desc:"Two saws, soft attack; the filter opens after the attack.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",detune:-8}],["osc2","osc",1,1,{wave:"sawtooth",detune:8}],["mix1","mixer",2,0,{l1:0.5,l2:0.5,l3:0}],
    ["flt1","ladder",3,0,{cutoff:600,res:0.2}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.09,d:0.35,s:0.65,r:0.2}],["env2","adsr",4,1,{a:0.06,d:0.2,s:0.85,r:0.18}],
    ["rev1","reverb",100,0,{size:1.8,mix:0.2}],["out","output",101,0,{level:0.28}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3000","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Lead solista",panel:"mini",desc:"Quadra più sega, vibrato leggero dall’LFO, delay a eco.",make:()=>mk(
+ {name:"Solo Lead",group:"Leads & Brass",panel:"mini",desc:"Square plus saw, light LFO vibrato, echo delay.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"square"}],["osc2","osc",1,1,{wave:"sawtooth",detune:7}],["mix1","mixer",2,0,{l1:0.4,l2:0.5,l3:0}],["lfo1","lfo",2,2,{rate:5.5}],
    ["flt1","ladder",3,0,{cutoff:2200,res:0.3}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.005,d:0.45,s:0.55,r:0.25}],["env2","adsr",4,1,{a:0.005,d:0.3,s:0.8,r:0.22}],
    ["dly1","delay",100,0,{time:0.38,fb:0.38,mix:0.28}],["rev1","reverb",101,0,{size:1.5,mix:0.18}],["out","output",102,0,{level:0.25}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","lfo1.out>osc1.freq:4","lfo1.out>osc2.freq:4","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in",
    "env1.out>flt1.cutoffMod:2000","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Pizzicato",panel:"mini",desc:"Nota che decade a zero anche tenendo premuto il tasto: pizzicato sintetico.",make:()=>mk(
+ {name:"Pizzicato",group:"Plucks & Bells",panel:"mini",desc:"The note decays to zero even while the key is held: a synthetic pizzicato.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth"}],["osc2","osc",1,1,{wave:"triangle",detune:5}],["mix1","mixer",2,0,{l1:0.6,l2:0.3,l3:0}],
    ["flt1","ladder",3,0,{cutoff:500,res:0.35}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.004,d:0.22,s:0,r:0.2}],["env2","adsr",4,1,{a:0.004,d:0.3,s:0,r:0.25}],
    ["dly1","delay",100,0,{time:0.3,fb:0.3,mix:0.3}],["rev1","reverb",101,0,{size:1.2,mix:0.2}],["out","output",102,0,{level:0.28}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:5000","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Campana FM",panel:"fm",desc:"Rapporto 3,5 e indice medio: timbro metallico da campana, lungo decadimento.",make:()=>mk(
+ {name:"FM Bell",group:"Plucks & Bells",panel:"fm",desc:"Ratio 3.5 and medium index: a metallic bell timbre with a long decay.",make:()=>mk(
   [["kbd","keyin",0,0],["fm1","fm",1,0,{ratio:3.5,index:3.2}],["flt1","ladder",2,0,{cutoff:5500,res:0.05}],["amp1","vca",3,0],["env2","adsr",3,1,{a:0.004,d:1.8,s:0,r:1.6}],
    ["rev1","reverb",100,0,{size:3,mix:0.4}],["out","output",101,0,{level:0.25}]],
   ["kbd.pitch>fm1.freq","fm1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Organo",noVel:true,panel:"organ",desc:"Tre sinusoidi a ottave diverse (come i registri), vibrato veloce, nessun filtro.",make:()=>mk(
+ {name:"Drawbar Organ",group:"Organs",noVel:true,panel:"organ",desc:"Three sines at different octaves (like drawbars), fast vibrato, no filter.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sine"}],["osc2","osc",1,1,{wave:"sine",oct:1}],["osc3","osc",1,2,{wave:"sine",oct:-1}],["mix1","mixer",2,0,{l1:0.6,l2:0.45,l3:0.4}],
    ["lfo1","lfo",2,2,{rate:6.2}],["amp1","vca",3,0],["env1","adsr",3,1,{a:0.006,d:0.05,s:1,r:0.06}],["cho1","chorus",100,0,{rate:0.8,depth:0.6,mix:0.4}],["rev1","reverb",101,0,{size:1.6,mix:0.25}],["out","output",102,0,{level:0.22}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","lfo1.out>osc1.freq:2","lfo1.out>osc2.freq:2","lfo1.out>osc3.freq:2",
    "mix1.out>amp1.in","env1.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Soffio e colpo",panel:"perc",desc:"Rumore filtrato con inviluppo veloce: hi-hat, soffio o colpo, a seconda del taglio.",make:()=>mk(
+ {name:"Noise Burst",group:"Drums & Percussion",panel:"perc",desc:"Filtered noise with a fast envelope: hi-hat, breath or hit, depending on the cutoff.",make:()=>mk(
   [["noise1","noise",1,0],["flt1","ladder",2,0,{cutoff:2500,res:0.4}],["amp1","vca",3,0],["env1","adsr",2,1,{a:0.004,d:0.3,s:0,r:0.25}],["env2","adsr",3,1,{a:0.004,d:0.25,s:0,r:0.2}],
    ["rev1","reverb",100,0,{size:0.8,mix:0.2}],["out","output",101,0,{level:0.35}]],
   ["noise1.out>flt1.in","env1.out>flt1.cutoffMod:4500","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Shine On - P III",panel:"mini",desc:"Il solo della Parte III, ‘ottone’ monofonico: sega con una seconda leggermente scordata, il filtro si apre lentamente a ogni nota, portamento leggero, un velo di delay e riverbero. Si carica a 1 voce.",voices:1,make:()=>mk(
+ {name:"Shine On - P III",group:"Leads & Brass",panel:"mini",desc:"The Part III solo, a monophonic “brass”: a saw with a slightly detuned second saw, the filter opens slowly on every note, light portamento, a touch of delay and reverb. Loads with 1 voice.",voices:1,make:()=>mk(
   [["kbd","keyin",0,0,{glide:0.05}],["osc1","osc",1,0,{wave:"sawtooth"}],["osc2","osc",1,1,{wave:"sawtooth",detune:3}],["mix1","mixer",2,0,{l1:0.8,l2:0.25,l3:0}],
    ["flt1","ladder",3,0,{cutoff:420,res:0.15}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.6,d:0.4,s:0.9,r:0.35}],["env2","adsr",4,1,{a:0.03,d:0.2,s:1,r:0.3}],
    ["dly1","delay",100,0,{time:0.32,fb:0.18,mix:0.1}],["rev1","reverb",101,0,{size:2.8,mix:0.3}],["out","output",102,0,{level:0.3}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3200","flt1.out>amp1.in","env2.out>amp1.gain",
    "amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Shine On - P I",panel:"mini",desc:"Tono morbido da corno: onda triangolare con un filo di sega per il ‘nocciolo’, portamento leggero, vibrato dosato dalla rotella MOD, un soffio di rumore, eco discreto e riverbero ampio. Si carica a 1 voce.",voices:1,make:()=>mk(
+ {name:"Shine On - P I",group:"Leads & Brass",panel:"mini",desc:"A soft, horn-like tone: triangle wave with a hint of saw for the “core”, light portamento, vibrato scaled by the MOD wheel, a breath of noise, discreet echo and a wide reverb. Loads with 1 voice.",voices:1,make:()=>mk(
   [["kbd","keyin",0,0,{glide:0.05}],["osc1","osc",1,0,{wave:"triangle"}],["osc2","osc",1,1,{wave:"sawtooth",detune:2}],["noise1","noise",1,2],["lfo1","lfo",2,2,{rate:4.6}],["wheel1","modwheel",0,1],["vib1","vca",2,1],
    ["mix1","mixer",2,0,{l1:0.9,l2:0.18,l3:0.05}],["flt1","ladder",3,0,{cutoff:900,res:0.12}],["amp1","vca",4,0],
    ["env1","adsr",3,1,{a:0.12,d:0.5,s:0.6,r:0.4}],["env2","adsr",4,1,{a:0.07,d:0.3,s:0.9,r:0.4}],
    ["dly1","delay",100,0,{time:0.4,fb:0.25,mix:0.12}],["rev1","reverb",101,0,{size:3.5,mix:0.35}],["out","output",102,0,{level:0.3}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","lfo1.out>vib1.in","wheel1.out>vib1.gain","vib1.out>osc1.freq:3","vib1.out>osc2.freq:3","osc1.out>mix1.in1","osc2.out>mix1.in2","noise1.out>mix1.in3",
    "mix1.out>flt1.in","env1.out>flt1.cutoffMod:1800","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Arpeggio notturno",panel:"mini",desc:"Arpeggio su-giù su due ottave: tieni un accordo e il synth lo suona a note singole. Il delay è sincronizzato in croma puntata: cambia il tempo dell’arpeggio e l’eco lo segue.",arp:{on:true,mode:"updown",div:"1/16",bpm:104,oct:2,gate:0.55,swing:0.1},make:()=>mk(
+ {name:"Arp – Nocturne",group:"Arpeggiator",panel:"mini",desc:"Up-down arpeggio over two octaves: hold a chord and the synth plays it as single notes. The delay is synced to a dotted eighth: change the arpeggio tempo and the echo follows.",arp:{on:true,mode:"updown",div:"1/16",bpm:104,oct:2,gate:0.55,swing:0.1},make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth"}],["osc2","osc",1,1,{wave:"square",detune:-6}],["mix1","mixer",2,0,{l1:0.5,l2:0.4,l3:0}],
    ["flt1","ladder",3,0,{cutoff:900,res:0.3}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.004,d:0.25,s:0,r:0.2}],["env2","adsr",4,1,{a:0.004,d:0.22,s:0,r:0.18}],
    ["dly1","delay",100,0,{time:0.43,fb:0.35,mix:0.3,sync:"1/8."}],["rev1","reverb",101,0,{size:2.2,mix:0.25}],["out","output",102,0,{level:0.28}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3500","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Cassa sintetica",panel:"perc",desc:"Seno la cui altezza cade in pochi millisecondi, più un filo di rumore per il colpo. Ogni tasto suona lo stesso colpo.",make:()=>mk(
+ {name:"Synth Kick",group:"Drums & Percussion",panel:"perc",desc:"A sine whose pitch drops within a few milliseconds, plus a little noise for the click. Every key plays the same hit.",make:()=>mk(
   [["osc1","osc",1,0,{wave:"sine"}],["noise1","noise",1,1],["mix1","mixer",2,0,{l1:1,l2:0.1,l3:0}],["flt1","ladder",3,0,{cutoff:3500,res:0}],["amp1","vca",4,0],
    ["env1","adsr",2,1,{a:0.001,d:0.1,s:0,r:0.05}],["env2","adsr",4,1,{a:0.001,d:0.32,s:0,r:0.1}],["rev1","reverb",100,0,{size:0.6,mix:0.08}],["out","output",101,0,{level:0.45}]],
   ["env1.out>osc1.freq:180","osc1.out>mix1.in1","noise1.out>mix1.in2","mix1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Rullante",panel:"perc",desc:"Corpo triangolare con una piccola caduta di altezza e molto rumore filtrato. I tasti accordano il corpo del colpo.",make:()=>mk(
+ {name:"Snare",group:"Drums & Percussion",panel:"perc",desc:"Triangle body with a small pitch drop and plenty of filtered noise. The keys tune the body of the hit.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"triangle",oct:-1}],["noise1","noise",1,1],["mix1","mixer",2,0,{l1:0.4,l2:0.9,l3:0}],["flt1","ladder",3,0,{cutoff:6500,res:0.05}],["amp1","vca",4,0],
    ["env1","adsr",2,1,{a:0.001,d:0.06,s:0,r:0.05}],["env2","adsr",4,1,{a:0.001,d:0.17,s:0,r:0.08}],["rev1","reverb",100,0,{size:0.9,mix:0.18}],["out","output",101,0,{level:0.4}]],
   ["kbd.pitch>osc1.freq","env1.out>osc1.freq:60","osc1.out>mix1.in1","noise1.out>mix1.in2","mix1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Hi-hat chiuso",panel:"perc",desc:"Rumore filtrato dal passa-alto con un inviluppo di 50 ms: il colpo secco del charleston chiuso. Ogni tasto suona lo stesso colpo.",make:()=>mk(
+ {name:"Hi-hat – Closed",group:"Drums & Percussion",panel:"perc",desc:"High-passed noise with a 50 ms envelope: the tight snap of a closed hi-hat. Every key plays the same hit.",make:()=>mk(
   [["noise1","noise",1,0],["flt1","hpf",2,0,{cutoff:7500,res:0.2}],["amp1","vca",3,0],["env2","adsr",3,1,{a:0.001,d:0.055,s:0,r:0.03}],["rev1","reverb",100,0,{size:0.5,mix:0.08}],["out","output",101,0,{level:0.3}]],
   ["noise1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Hi-hat aperto",panel:"perc",desc:"Lo stesso rumore con il passa-alto un po’ più basso e un decadimento di mezzo secondo: il charleston aperto che si spegne piano.",make:()=>mk(
+ {name:"Hi-hat – Open",group:"Drums & Percussion",panel:"perc",desc:"The same noise with a slightly lower high-pass and a half-second decay: an open hi-hat that fades gently.",make:()=>mk(
   [["noise1","noise",1,0],["flt1","hpf",2,0,{cutoff:6200,res:0.25}],["amp1","vca",3,0],["env2","adsr",3,1,{a:0.001,d:0.38,s:0,r:0.3}],["rev1","reverb",100,0,{size:0.8,mix:0.12}],["out","output",101,0,{level:0.3}]],
   ["noise1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Piatto",panel:"perc",desc:"Il passa-alto si apre dopo il colpo (Contorno 1) e il volume decade in oltre un secondo: un crash morbido.",make:()=>mk(
+ {name:"Cymbal",group:"Drums & Percussion",panel:"perc",desc:"The high-pass opens after the hit (Envelope 1) and the volume decays over more than a second: a soft crash.",make:()=>mk(
   [["noise1","noise",1,0],["flt1","hpf",2,0,{cutoff:3500,res:0.3}],["amp1","vca",3,0],["env1","adsr",2,1,{a:0.001,d:0.5,s:0,r:0.4}],["env2","adsr",3,1,{a:0.001,d:1.5,s:0,r:1.2}],["rev1","reverb",100,0,{size:2,mix:0.3}],["out","output",101,0,{level:0.28}]],
   ["noise1.out>flt1.in","env1.out>flt1.cutoffMod:4000","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Piano elettrico FM",panel:"fm",desc:"L’inviluppo modula l’indice dell’FM: timbro brillante all’attacco che si ammorbidisce, con chorus stereo.",make:()=>mk(
+ {name:"FM Electric Piano",group:"Electric Pianos",panel:"fm",desc:"The envelope modulates the FM index: bright on the attack, then mellowing, with stereo chorus.",make:()=>mk(
   [["kbd","keyin",0,0],["fm1","fm",1,0,{ratio:1,index:0.3}],["env1","adsr",1,1,{a:0.004,d:0.7,s:0.05,r:0.4}],["flt1","ladder",2,0,{cutoff:4500,res:0}],["amp1","vca",3,0],
    ["env2","adsr",3,1,{a:0.004,d:1.6,s:0,r:0.6}],["cho1","chorus",100,0,{rate:0.6,depth:0.45,mix:0.45}],["rev1","reverb",101,0,{size:2,mix:0.25}],["out","output",102,0,{level:0.25}]],
   ["kbd.pitch>fm1.freq","env1.out>fm1.index:3","fm1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Prophet-5 – One of My Turns (intro)",group:"Prophet-5",panel:"sync",desc:"Sega in oscillator sync il cui rapporto scende a ogni nota (il «Poly-Mod»), filtro medio, LFO dosato dalla ruota MOD. Ricostruzione di un appassionato, non verificata sul disco.",make:()=>mk(
+ {name:"Prophet-5 – One of My Turns (intro)",group:"Leads & Brass",panel:"sync",desc:"A saw in oscillator sync whose ratio drops on every note (the “Poly-Mod”), medium filter, LFO scaled by the MOD wheel. A fan’s reconstruction, not verified against the record.",make:()=>mk(
   [["kbd","keyin",0,0],["sy1","syncosc",1,0,{ratio:2.2}],["flt1","ladder",2,0,{cutoff:1700,res:0.18}],["amp1","vca",3,0],
    ["env1","adsr",1,1.2,{a:0.12,d:2,s:0,r:0.3}],["env2","adsr",3,1.2,{a:0.004,d:0.01,s:1,r:0.06}],["lfo1","lfo",0,1.2,{rate:3.2}],["wheel1","modwheel",0,2.2],["vib1","vca",2,1.2],
    ["rev1","reverb",100,0,{size:1.8,mix:0.15}],["out","output",101,0,{level:0.2}]],
   ["kbd.pitch>sy1.freq","kbd.pitch>flt1.cutoffMod:3","env1.out>sy1.ratio:5.5","sy1.out>flt1.in","lfo1.out>vib1.in","wheel1.out>vib1.gain","vib1.out>flt1.cutoffMod:900",
    "flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Prophet-5 – sync lead (Run Like Hell)",group:"Prophet-5",panel:"sync",desc:"Lo stesso oscillatore in sync con un inviluppo veloce che resta in parte aperto: il lead tagliente del solo. Una fonte lega il solo in sync del Prophet a questo brano.",make:()=>mk(
+ {name:"Prophet-5 – Sync Lead (Run Like Hell)",group:"Leads & Brass",panel:"sync",desc:"The same synced oscillator with a fast envelope that stays partly open: the cutting lead of the solo. One source ties the Prophet’s synced solo to this track.",make:()=>mk(
   [["kbd","keyin",0,0],["sy1","syncosc",1,0,{ratio:1.6}],["flt1","ladder",2,0,{cutoff:3600,res:0.25}],["amp1","vca",3,0],
    ["env1","adsr",1,1.2,{a:0.002,d:0.9,s:0.35,r:0.2}],["env2","adsr",3,1.2,{a:0.004,d:0.01,s:1,r:0.08}],["lfo1","lfo",0,1.2,{rate:5.5}],["wheel1","modwheel",0,2.2],["vib1","vca",2,1.2],
    ["rev1","reverb",100,0,{size:1.2,mix:0.12}],["out","output",101,0,{level:0.2}]],
   ["kbd.pitch>sy1.freq","kbd.pitch>flt1.cutoffMod:3","env1.out>sy1.ratio:3.5","sy1.out>flt1.in","lfo1.out>vib1.in","wheel1.out>vib1.gain","vib1.out>flt1.cutoffMod:900",
    "flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"ARP String Ensemble – violini",noVel:true,group:"String machine",panel:"pad",desc:"Tre seghe, attacco lento, rilascio lungo, filtro aperto e due cori a velocità diverse al posto delle tre linee di ritardo dell’originale. Niente phaser.",make:()=>mk(
+ {name:"ARP String Ensemble – Violins",group:"Strings & Pads",noVel:true,panel:"pad",desc:"Three saws, slow attack, long release, open filter and two choruses at different speeds in place of the original’s three delay lines. No phaser.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth"}],["osc2","osc",1,1,{wave:"sawtooth"}],["osc3","osc",1,2,{wave:"sawtooth",oct:1}],["mix1","mixer",2,0,{l1:0.5,l2:0.5,l3:0.25}],
    ["lfo1","lfo",2,1.4,{rate:5.2}],["flt1","ladder",3,0,{cutoff:4500,res:0}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.3,d:1,s:0.9,r:1}],["env2","adsr",4,1,{a:0.3,d:0.3,s:1,r:1.2}],
    ["cho1","chorus",100,0,{rate:0.6,depth:0.65,mix:0.55}],["cho2","chorus",101,0,{rate:0.95,depth:0.5,mix:0.5}],["rev1","reverb",102,0,{size:2.2,mix:0.25}],["out","output",100,1,{level:0.22}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","lfo1.out>osc1.freq:0.7","lfo1.out>osc2.freq:-0.7",
    "mix1.out>flt1.in","env1.out>flt1.cutoffMod:600","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>cho2.in","cho2.out>rev1.in","rev1.out>out.in"])},
- {name:"ARP String Ensemble – celli e viole",noVel:true,group:"String machine",panel:"pad",desc:"Registro più grave e scuro: una sega un’ottava sotto, filtro a 1800 Hz, attacco di mezzo secondo e rilascio di quasi due.",make:()=>mk(
+ {name:"ARP String Ensemble – Cellos & Violas",group:"Strings & Pads",noVel:true,panel:"pad",desc:"Lower, darker register: one saw an octave down, filter at 1800 Hz, half-second attack and almost two seconds of release.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",oct:-1}],["osc2","osc",1,1,{wave:"sawtooth"}],["osc3","osc",1,2,{wave:"sawtooth",detune:6}],["mix1","mixer",2,0,{l1:0.45,l2:0.5,l3:0.3}],
    ["lfo1","lfo",2,1.4,{rate:4.6}],["flt1","ladder",3,0,{cutoff:1800,res:0}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.5,d:1,s:0.9,r:1.5}],["env2","adsr",4,1,{a:0.5,d:0.3,s:1,r:1.8}],
    ["cho1","chorus",100,0,{rate:0.5,depth:0.7,mix:0.55}],["cho2","chorus",101,0,{rate:0.85,depth:0.55,mix:0.5}],["rev1","reverb",102,0,{size:2.8,mix:0.3}],["out","output",100,1,{level:0.22}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","lfo1.out>osc2.freq:0.6","lfo1.out>osc3.freq:-0.6",
    "mix1.out>flt1.in","env1.out>flt1.cutoffMod:400","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>cho2.in","cho2.out>rev1.in","rev1.out>out.in"])},
- {name:"Hammond C3 – 888000000 (Leslie lento)",noVel:true,group:"Organi",panel:"hammond",desc:"Drawbar 16′, 5⅓′ e 8′ a fondo (la registrazione 888000000), percussione sulla 3ª armonica, click del tasto e Leslie lento. Leslie e percussione sono approssimazioni.",make:()=>mk(
+ {name:"Hammond C3 – 888000000 (Slow Leslie)",group:"Organs",noVel:true,panel:"hammond",desc:"Drawbars 16′, 5⅓′ and 8′ fully out (the 888000000 registration), percussion on the 3rd harmonic, key click and slow Leslie. Leslie and percussion are approximations.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sine",oct:-1}],["osc2","osc",1,0.5,{wave:"sine",oct:-1,semi:7}],["osc3","osc",1,1,{wave:"sine"}],["osc4","osc",1,1.5,{wave:"sine",oct:1}],["osc5","osc",1,2,{wave:"sine",oct:2}],["osc6","osc",1,2.5,{wave:"sine",oct:1,semi:7}],
    ["mix1","mixer",2,0,{l1:1,l2:1,l3:1}],["mix2","mixer",2,1.3,{l1:1,l2:0,l3:0}],["mix3","mixer",2,2.3,{l1:1,l2:0.55,l3:0.12}],
    ["noise1","noise",0,1.2],["hpf1","hpf",0,2,{cutoff:3000,res:0.1}],["ampP","vca",3,0],["ampC","vca",3,1.3],
@@ -743,7 +745,7 @@ const PRESETS=[
    "osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","mix1.out>mix2.in1","osc4.out>mix2.in2","osc5.out>mix2.in3","mix2.out>mix3.in1",
    "osc6.out>ampP.in","envP.out>ampP.gain","ampP.out>mix3.in2","noise1.out>hpf1.in","hpf1.out>ampC.in","envC.out>ampC.gain","ampC.out>mix3.in3",
    "mix3.out>amp1.in","env2.out>amp1.gain","lfo1.out>trem.in","env2.out>trem.gain","trem.out>amp1.gain:0.06","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Hammond C3 – 888000000 (Leslie veloce)",noVel:true,group:"Organi",panel:"hammond",desc:"Stessa registrazione con il Leslie «veloce»: tremolo e chorus più rapidi (circa 6–7 Hz, valore approssimato).",make:()=>mk(
+ {name:"Hammond C3 – 888000000 (Fast Leslie)",group:"Organs",noVel:true,panel:"hammond",desc:"Same registration with the “fast” Leslie: quicker tremolo and chorus (about 6–7 Hz, approximate value).",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sine",oct:-1}],["osc2","osc",1,0.5,{wave:"sine",oct:-1,semi:7}],["osc3","osc",1,1,{wave:"sine"}],["osc4","osc",1,1.5,{wave:"sine",oct:1}],["osc5","osc",1,2,{wave:"sine",oct:2}],["osc6","osc",1,2.5,{wave:"sine",oct:1,semi:7}],
    ["mix1","mixer",2,0,{l1:1,l2:1,l3:1}],["mix2","mixer",2,1.3,{l1:1,l2:0,l3:0}],["mix3","mixer",2,2.3,{l1:1,l2:0.55,l3:0.12}],
    ["noise1","noise",0,1.2],["hpf1","hpf",0,2,{cutoff:3000,res:0.1}],["ampP","vca",3,0],["ampC","vca",3,1.3],
@@ -754,79 +756,80 @@ const PRESETS=[
    "osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","mix1.out>mix2.in1","osc4.out>mix2.in2","osc5.out>mix2.in3","mix2.out>mix3.in1",
    "osc6.out>ampP.in","envP.out>ampP.gain","ampP.out>mix3.in2","noise1.out>hpf1.in","hpf1.out>ampC.in","envC.out>ampC.gain","ampC.out>mix3.in3",
    "mix3.out>amp1.in","env2.out>amp1.gain","lfo1.out>trem.in","env2.out>trem.gain","trem.out>amp1.gain:0.1","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Farfisa Compact – Flute, Oboe, Flute 4′",noVel:true,group:"Organi",panel:"combo",desc:"Registrazione da fonti per questo organo: flauto 8′ (triangolare), oboe 8′ (quadra), flauto 4′ con vibrato veloce e riverbero a molla. Reg. 1 = flauto 8′, 2 = oboe, 3 = flauto 4′.",make:()=>mk(
+ {name:"Farfisa Compact – Flute, Oboe, Flute 4′",group:"Organs",noVel:true,panel:"combo",desc:"Registration from published sources for this organ: 8′ flute (triangle), 8′ oboe (square), 4′ flute with fast vibrato and spring reverb. Reg. 1 = 8′ flute, 2 = oboe, 3 = 4′ flute.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"triangle"}],["osc2","osc",1,1,{wave:"square"}],["osc3","osc",1,2,{wave:"triangle",oct:1}],["mix1","mixer",2,0,{l1:0.9,l2:0.45,l3:0.7}],
    ["flt1","ladder",3,0,{cutoff:4200,res:0.08}],["amp1","vca",4,0],["env1","adsr",3,1.3,{a:0.004,d:0.01,s:1,r:0.05}],["lfo1","lfo",2,1.6,{rate:6.3}],
    ["rev1","reverb",100,0,{size:1.4,mix:0.28}],["out","output",101,0,{level:0.28}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","lfo1.out>osc1.freq:2.2","lfo1.out>osc2.freq:2.2","lfo1.out>osc3.freq:2.2",
    "mix1.out>flt1.in","flt1.out>amp1.in","env1.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Farfisa Compact – Booster",noVel:true,group:"Organi",panel:"combo",desc:"Il «Multi-Tone Booster»: onde quadre 8′ e 4′ più una quadra filtrata passa-alto per il taglio aspro. Reg. 1 = 8′, 2 = 4′, 3 = booster.",make:()=>mk(
+ {name:"Farfisa Compact – Booster",group:"Organs",noVel:true,panel:"combo",desc:"The “Multi-Tone Booster”: 8′ and 4′ square waves plus a high-passed square for the harsh bite. Reg. 1 = 8′, 2 = 4′, 3 = booster.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"square"}],["osc2","osc",1,1,{wave:"square",oct:1}],["osc3","osc",1,2,{wave:"square"}],["hpf1","hpf",2,1.5,{cutoff:2800,res:0.2}],
    ["mix1","mixer",2,0,{l1:0.7,l2:0.4,l3:0.6}],["flt1","ladder",3,0,{cutoff:5500,res:0.05}],["amp1","vca",4,0],["env1","adsr",3,1.3,{a:0.004,d:0.01,s:1,r:0.05}],["lfo1","lfo",3,2.3,{rate:5.6}],
    ["rev1","reverb",100,0,{size:1.4,mix:0.28}],["out","output",101,0,{level:0.24}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>hpf1.in","hpf1.out>mix1.in3","lfo1.out>osc1.freq:1.5","lfo1.out>osc2.freq:1.5","lfo1.out>osc3.freq:1.5",
    "mix1.out>flt1.in","flt1.out>amp1.in","env1.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Fender Rhodes Mark I",group:"Piani elettrici",panel:"rhodes",desc:"Approssimazione FM in stile DX: il timbro «barra» si addolcisce nel decadimento, un breve «ping» di rebbio e chorus stereo. Non c’è la dinamica del tocco.",make:()=>mk(
+ {name:"Fender Rhodes – Mark I",group:"Electric Pianos",panel:"rhodes",desc:"DX-style FM approximation: the “bar” tone mellows as it decays, with a short tine “ping” and stereo chorus.",make:()=>mk(
   [["kbd","keyin",0,0],["fm1","fm",1,0,{ratio:1,index:0.3}],["osc2","osc",1,1.2,{wave:"sine",oct:2,semi:7,detune:18}],["ampT","vca",2,1.2],["env3","adsr",2,2.2,{a:0.001,d:0.12,s:0,r:0.05}],["env1","adsr",1,2.2,{a:0.002,d:0.55,s:0,r:0.3}],
    ["mix1","mixer",2,0,{l1:1,l2:0.12,l3:0}],["flt1","ladder",3,0,{cutoff:6500,res:0}],["amp1","vca",4,0],["env2","adsr",3,1.2,{a:0.002,d:2.2,s:0,r:0.3}],["lfo1","lfo",4,1.2,{rate:4.8}],["trem","vca",4,2.2],
    ["cho1","chorus",100,0,{rate:0.7,depth:0.5,mix:0.45}],["rev1","reverb",101,0,{size:1.8,mix:0.2}],["out","output",102,0,{level:0.28}]],
   ["kbd.pitch>fm1.freq","kbd.pitch>osc2.freq","env1.out>fm1.index:2.4","fm1.out>mix1.in1","osc2.out>ampT.in","env3.out>ampT.gain","ampT.out>mix1.in2","mix1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","lfo1.out>trem.in","env2.out>trem.gain","trem.out>amp1.gain:0",
    "amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Fender Rhodes – Suitcase (tremolo)",group:"Piani elettrici",panel:"rhodes",desc:"Più mordente (indice più alto) e il tremolo d’ampiezza dei Rhodes con amplificatore: la profondità si regola nella sezione Tremolo.",make:()=>mk(
+ {name:"Fender Rhodes – Suitcase (Tremolo)",group:"Electric Pianos",panel:"rhodes",desc:"More bite (higher index) and the amplitude tremolo of amp-equipped Rhodes: set the depth in the Tremolo section.",make:()=>mk(
   [["kbd","keyin",0,0],["fm1","fm",1,0,{ratio:1,index:0.45}],["osc2","osc",1,1.2,{wave:"sine",oct:2,semi:7,detune:18}],["ampT","vca",2,1.2],["env3","adsr",2,2.2,{a:0.001,d:0.1,s:0,r:0.05}],["env1","adsr",1,2.2,{a:0.002,d:0.45,s:0,r:0.3}],
    ["mix1","mixer",2,0,{l1:1,l2:0.2,l3:0}],["flt1","ladder",3,0,{cutoff:7500,res:0}],["amp1","vca",4,0],["env2","adsr",3,1.2,{a:0.002,d:1.8,s:0,r:0.25}],["lfo1","lfo",4,1.2,{rate:5}],["trem","vca",4,2.2],
    ["cho1","chorus",100,0,{rate:0.6,depth:0.35,mix:0.25}],["rev1","reverb",101,0,{size:1.4,mix:0.15}],["out","output",102,0,{level:0.28}]],
   ["kbd.pitch>fm1.freq","kbd.pitch>osc2.freq","env1.out>fm1.index:3.2","fm1.out>mix1.in1","osc2.out>ampT.in","env3.out>ampT.gain","ampT.out>mix1.in2","mix1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","lfo1.out>trem.in","env2.out>trem.gain","trem.out>amp1.gain:0.25",
    "amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])}
 ,
- {name:"Arp – Pluck secco",group:"Arpeggiatore",panel:"mini",desc:"Attacco istantaneo, decadimento e rilascio brevissimi: ogni nota è un colpetto asciutto. Il filtro si apre e si richiude in un attimo.",arp:{on:true,mode:"up",div:"1/16",bpm:120,oct:2,gate:0.45,swing:0},make:()=>mk(
+ {name:"Arp – Dry Pluck",group:"Arpeggiator",panel:"mini",desc:"Instant attack, very short decay and release: each note is a dry tap. The filter opens and closes in a flash.",arp:{on:true,mode:"up",div:"1/16",bpm:120,oct:2,gate:0.45,swing:0},make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",oct:0,detune:0}],["osc2","osc",1,1,{wave:"square",oct:0,detune:-6}],["mix1","mixer",2,0,{l1:0.55,l2:0.4,l3:0}],["flt1","ladder",3,0,{cutoff:650,res:0.25}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.001,d:0.13,s:0,r:0.05}],["env2","adsr",4,1,{a:0.001,d:0.15,s:0,r:0.06}],["dly1","delay",100,0,{time:0.4,fb:0.3,mix:0.22,sync:"1/8"}],["rev1","reverb",101,0,{size:1.2,mix:0.12}],["out","output",102,0,{level:0.3}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:4800","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Arp – Staccato digitale",group:"Arpeggiatore",panel:"mini",desc:"Onde quadre e sega con risonanza media e gate corto: suono nitido, quasi da chiptune educato, ideale a tempo sostenuto.",arp:{on:true,mode:"up",div:"1/16",bpm:132,oct:3,gate:0.32,swing:0},make:()=>mk(
+ {name:"Arp – Digital Staccato",group:"Arpeggiator",panel:"mini",desc:"Square and saw waves with medium resonance and a short gate: crisp, almost polite chiptune, ideal at a brisk tempo.",arp:{on:true,mode:"up",div:"1/16",bpm:132,oct:3,gate:0.32,swing:0},make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"square",oct:0,detune:0}],["osc2","osc",1,1,{wave:"sawtooth",oct:1,detune:5}],["mix1","mixer",2,0,{l1:0.5,l2:0.3,l3:0}],["flt1","ladder",3,0,{cutoff:1100,res:0.4}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.001,d:0.08,s:0,r:0.03}],["env2","adsr",4,1,{a:0.001,d:0.09,s:0,r:0.04}],["dly1","delay",100,0,{time:0.4,fb:0.25,mix:0.18,sync:"1/8."}],["rev1","reverb",101,0,{size:0.9,mix:0.08}],["out","output",102,0,{level:0.28}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3600","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Arp – Basso sequencer",group:"Arpeggiatore",panel:"mini",desc:"Sega e quadra un’ottava sotto, filtro chiuso con un colpo veloce: il classico basso a note ribattute.",arp:{on:true,mode:"up",div:"1/16",bpm:118,oct:1,gate:0.5,swing:0},make:()=>mk(
+ {name:"Arp – Sequencer Bass",group:"Arpeggiator",panel:"mini",desc:"Saw and square an octave down, closed filter with a fast pluck: the classic repeated-note bass.",arp:{on:true,mode:"up",div:"1/16",bpm:118,oct:1,gate:0.5,swing:0},make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",oct:-1,detune:0}],["osc2","osc",1,1,{wave:"square",oct:-1,detune:4}],["mix1","mixer",2,0,{l1:0.6,l2:0.45,l3:0}],["flt1","ladder",3,0,{cutoff:380,res:0.35}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.001,d:0.11,s:0,r:0.05}],["env2","adsr",4,1,{a:0.001,d:0.14,s:0,r:0.06}],["rev1","reverb",100,0,{size:0.8,mix:0.06}],["out","output",101,0,{level:0.32}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3000","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
- {name:"Arp – Flauto morbido",group:"Arpeggiatore",panel:"mini",desc:"Triangolo e seno all’ottava, filtro quasi aperto e poca risonanza: note tonde e delicate con una piccola coda.",arp:{on:true,mode:"updown",div:"1/8",bpm:96,oct:2,gate:0.8,swing:0},make:()=>mk(
+ {name:"Arp – Soft Flute",group:"Arpeggiator",panel:"mini",desc:"Triangle and sine an octave up, nearly open filter and little resonance: round, delicate notes with a small tail.",arp:{on:true,mode:"updown",div:"1/8",bpm:96,oct:2,gate:0.8,swing:0},make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"triangle",oct:0,detune:0}],["osc2","osc",1,1,{wave:"sine",oct:1,detune:0}],["mix1","mixer",2,0,{l1:0.7,l2:0.35,l3:0}],["flt1","ladder",3,0,{cutoff:2400,res:0.05}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.02,d:0.35,s:0,r:0.3}],["env2","adsr",4,1,{a:0.025,d:0.4,s:0,r:0.35}],["cho1","chorus",100,0,{rate:0.6,depth:0.4,mix:0.3}],["rev1","reverb",101,0,{size:2.2,mix:0.28}],["out","output",102,0,{level:0.3}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:700","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Arp – Velluto",group:"Arpeggiatore",panel:"mini",desc:"Due seghe appena scordate, filtro scuro che si apre piano e un chorus largo: arpeggio morbido e avvolgente.",arp:{on:true,mode:"updown",div:"1/8",bpm:88,oct:2,gate:0.9,swing:0},make:()=>mk(
+ {name:"Arp – Velvet",group:"Arpeggiator",panel:"mini",desc:"Two slightly detuned saws, a dark filter that opens slowly and a wide chorus: a soft, enveloping arpeggio.",arp:{on:true,mode:"updown",div:"1/8",bpm:88,oct:2,gate:0.9,swing:0},make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",oct:0,detune:-8}],["osc2","osc",1,1,{wave:"sawtooth",oct:0,detune:8}],["mix1","mixer",2,0,{l1:0.45,l2:0.45,l3:0}],["flt1","ladder",3,0,{cutoff:1000,res:0.1}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.02,d:0.5,s:0,r:0.5}],["env2","adsr",4,1,{a:0.02,d:0.55,s:0,r:0.5}],["cho1","chorus",100,0,{rate:0.7,depth:0.55,mix:0.5}],["rev1","reverb",101,0,{size:2.8,mix:0.3}],["out","output",102,0,{level:0.26}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:1400","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Arp – Kalimba",group:"Arpeggiatore",panel:"fm",desc:"FM dolce (rapporto 2, indice basso) con decadimento medio: timbro tondo da kalimba o marimba, poco metallico.",arp:{on:true,mode:"random",div:"1/8",bpm:100,oct:2,gate:0.7,swing:0},make:()=>mk(
+ {name:"Arp – Kalimba",group:"Arpeggiator",panel:"fm",desc:"Gentle FM (ratio 2, low index) with medium decay: a round kalimba or marimba tone, not very metallic.",arp:{on:true,mode:"random",div:"1/8",bpm:100,oct:2,gate:0.7,swing:0},make:()=>mk(
   [["kbd","keyin",0,0],["fm1","fm",1,0,{ratio:2,index:0.6}],["flt1","ladder",2,0,{cutoff:6500,res:0.05}],["amp1","vca",3,0],["env1","adsr",2,1,{a:0.001,d:0.12,s:0,r:0.1}],["env2","adsr",3,1,{a:0.002,d:0.7,s:0,r:0.4}],["dly1","delay",100,0,{time:0.4,fb:0.3,mix:0.25,sync:"1/8."}],["rev1","reverb",101,0,{size:1.8,mix:0.2}],["out","output",102,0,{level:0.3}]],
   ["kbd.pitch>fm1.freq","env1.out>fm1.index:1.2","fm1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Arp – Campanelle FM",group:"Arpeggiatore",panel:"fm",desc:"Rapporto 3,5 e indice che cala in fretta: ogni nota è una campanella brillante, con eco in croma puntata.",arp:{on:true,mode:"up",div:"1/16",bpm:112,oct:2,gate:0.5,swing:0},make:()=>mk(
+ {name:"Arp – FM Bells",group:"Arpeggiator",panel:"fm",desc:"Ratio 3.5 and an index that drops quickly: each note is a bright little bell, with a dotted-eighth echo.",arp:{on:true,mode:"up",div:"1/16",bpm:112,oct:2,gate:0.5,swing:0},make:()=>mk(
   [["kbd","keyin",0,0],["fm1","fm",1,0,{ratio:3.5,index:2.2}],["flt1","ladder",2,0,{cutoff:7500,res:0.05}],["amp1","vca",3,0],["env1","adsr",2,1,{a:0.001,d:0.2,s:0,r:0.25}],["env2","adsr",3,1,{a:0.002,d:0.5,s:0,r:0.3}],["dly1","delay",100,0,{time:0.4,fb:0.35,mix:0.3,sync:"1/8."}],["rev1","reverb",101,0,{size:2.4,mix:0.25}],["out","output",102,0,{level:0.26}]],
   ["kbd.pitch>fm1.freq","env1.out>fm1.index:4","fm1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Arp – Metallo FM",group:"Arpeggiatore",panel:"fm",desc:"Rapporto non armonico (1,41) e indice alto sull’attacco: suono metallico, spigoloso, di lamiera percossa.",arp:{on:true,mode:"updown",div:"1/16",bpm:126,oct:2,gate:0.4,swing:0},make:()=>mk(
+ {name:"Arp – FM Metal",group:"Arpeggiator",panel:"fm",desc:"Inharmonic ratio (1.41) and high index on the attack: a metallic, angular sound like struck sheet metal.",arp:{on:true,mode:"updown",div:"1/16",bpm:126,oct:2,gate:0.4,swing:0},make:()=>mk(
   [["kbd","keyin",0,0],["fm1","fm",1,0,{ratio:1.41,index:3}],["flt1","ladder",2,0,{cutoff:9000,res:0.05}],["amp1","vca",3,0],["env1","adsr",2,1,{a:0.001,d:0.12,s:0,r:0.15}],["env2","adsr",3,1,{a:0.002,d:0.25,s:0,r:0.14}],["dly1","delay",100,0,{time:0.4,fb:0.28,mix:0.2,sync:"1/16"}],["rev1","reverb",101,0,{size:1.2,mix:0.12}],["out","output",102,0,{level:0.24}]],
   ["kbd.pitch>fm1.freq","env1.out>fm1.index:5.5","fm1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Arp – Acciaio (sync)",group:"Arpeggiatore",panel:"sync",desc:"Sega in oscillator sync con rapporto che scende in fretta: attacco tagliente e metallico che si smorza subito.",arp:{on:true,mode:"up",div:"1/16",bpm:116,oct:2,gate:0.42,swing:0},make:()=>mk(
+ {name:"Arp – Steel (Sync)",group:"Arpeggiator",panel:"sync",desc:"Saw in oscillator sync with a quickly dropping ratio: a sharp, metallic attack that dies away at once.",arp:{on:true,mode:"up",div:"1/16",bpm:116,oct:2,gate:0.42,swing:0},make:()=>mk(
   [["kbd","keyin",0,0],["sy1","syncosc",1,0,{ratio:1.8}],["flt1","ladder",2,0,{cutoff:3800,res:0.2}],["amp1","vca",3,0],["env1","adsr",1,1.2,{a:0.001,d:0.16,s:0,r:0.06}],["env2","adsr",3,1.2,{a:0.001,d:0.2,s:0,r:0.08}],["dly1","delay",100,0,{time:0.4,fb:0.28,mix:0.22,sync:"1/8."}],["rev1","reverb",101,0,{size:1.4,mix:0.15}],["out","output",102,0,{level:0.2}]],
   ["kbd.pitch>sy1.freq","env1.out>sy1.ratio:4.5","sy1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
- {name:"Piano a coda",group:"Pianoforte",panel:"piano",desc:"Sintesi FM con due «corde» appena scordate, colpo di martelletto e filtro che si apre per le note acute: brillante all’attacco, poi si addolcisce. Senza dinamica del tocco.",make:()=>mk(
+ {name:"Grand Piano",group:"Pianos",panel:"piano",desc:"FM synthesis with two slightly detuned “strings”, a hammer strike and a filter that opens for high notes: bright on the attack, then mellowing.",make:()=>mk(
   [["kbd","keyin",0,0],["noise1","noise",0,1],["hpf1","hpf",0,2,{cutoff:2800,res:0.1}],["fm1","fm",1,0,{ratio:1,index:0.5}],["osc2","osc",1,1,{wave:"sine",detune:5}],["env1","adsr",1,2,{a:0.001,d:0.55,s:0,r:0.1}],["ampH","vca",2,2],["mix1","mixer",2,0,{l1:0.8,l2:0.45,l3:0.1}],["envH","adsr",3,2,{a:0.001,d:0.035,s:0,r:0.02}],["flt1","ladder",3,0,{cutoff:2600,res:0.05}],["env2","adsr",3,1,{a:0.002,d:4,s:0,r:0.3}],["amp1","vca",4,0],["cho1","chorus",100,0,{rate:0.5,depth:0.2,mix:0}],["rev1","reverb",101,0,{size:1.6,mix:0.18}],["out","output",102,0,{level:0.3}]],
   ["kbd.pitch>fm1.freq","kbd.pitch>osc2.freq","env1.out>fm1.index:2.4","fm1.out>mix1.in1","osc2.out>mix1.in2","noise1.out>hpf1.in","hpf1.out>ampH.in","envH.out>ampH.gain","ampH.out>mix1.in3","mix1.out>flt1.in","kbd.pitch>flt1.cutoffMod:3.5","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Piano verticale",group:"Pianoforte",panel:"piano",desc:"Più scuro e un po’ «honky-tonk»: corde più scordate, decadimento più breve e riverbero da stanza piccola.",make:()=>mk(
+ {name:"Upright Piano",group:"Pianos",panel:"piano",desc:"Darker and a little “honky-tonk”: more detuned strings, shorter decay and small-room reverb.",make:()=>mk(
   [["kbd","keyin",0,0],["noise1","noise",0,1],["hpf1","hpf",0,2,{cutoff:2200,res:0.1}],["fm1","fm",1,0,{ratio:1,index:0.4}],["osc2","osc",1,1,{wave:"sine",detune:9}],["env1","adsr",1,2,{a:0.001,d:0.35,s:0,r:0.1}],["ampH","vca",2,2],["mix1","mixer",2,0,{l1:0.8,l2:0.55,l3:0.14}],["envH","adsr",3,2,{a:0.001,d:0.035,s:0,r:0.02}],["flt1","ladder",3,0,{cutoff:1800,res:0.05}],["env2","adsr",3,1,{a:0.002,d:2.2,s:0,r:0.15}],["amp1","vca",4,0],["cho1","chorus",100,0,{rate:0.5,depth:0.2,mix:0}],["rev1","reverb",101,0,{size:0.8,mix:0.08}],["out","output",102,0,{level:0.3}]],
   ["kbd.pitch>fm1.freq","kbd.pitch>osc2.freq","env1.out>fm1.index:2","fm1.out>mix1.in1","osc2.out>mix1.in2","noise1.out>hpf1.in","hpf1.out>ampH.in","envH.out>ampH.gain","ampH.out>mix1.in3","mix1.out>flt1.in","kbd.pitch>flt1.cutoffMod:3","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Piano morbido (feltro)",group:"Pianoforte",panel:"piano",desc:"Piano ovattato, con il feltro sui martelletti: pochissimo colpo, attacco dolce e filtro basso.",make:()=>mk(
+ {name:"Felt Piano",group:"Pianos",panel:"piano",desc:"A muffled piano with felt on the hammers: very little strike, soft attack and a low filter.",make:()=>mk(
   [["kbd","keyin",0,0],["noise1","noise",0,1],["hpf1","hpf",0,2,{cutoff:1500,res:0.1}],["fm1","fm",1,0,{ratio:1,index:0.3}],["osc2","osc",1,1,{wave:"sine",detune:3}],["env1","adsr",1,2,{a:0.001,d:0.6,s:0,r:0.1}],["ampH","vca",2,2],["mix1","mixer",2,0,{l1:0.8,l2:0.4,l3:0.04}],["envH","adsr",3,2,{a:0.001,d:0.035,s:0,r:0.02}],["flt1","ladder",3,0,{cutoff:1300,res:0.05}],["env2","adsr",3,1,{a:0.002,d:3.2,s:0,r:0.4}],["amp1","vca",4,0],["cho1","chorus",100,0,{rate:0.5,depth:0.2,mix:0}],["rev1","reverb",101,0,{size:2.2,mix:0.3}],["out","output",102,0,{level:0.32}]],
   ["kbd.pitch>fm1.freq","kbd.pitch>osc2.freq","env1.out>fm1.index:1","fm1.out>mix1.in1","osc2.out>mix1.in2","noise1.out>hpf1.in","hpf1.out>ampH.in","envH.out>ampH.gain","ampH.out>mix1.in3","mix1.out>flt1.in","kbd.pitch>flt1.cutoffMod:2","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Piano brillante (pop)",group:"Pianoforte",panel:"piano",desc:"Attacco più duro e chiaro, ottimo per accordi ritmici: indice alto, martelletto presente e un velo di chorus.",make:()=>mk(
+ {name:"Bright Pop Piano",group:"Pianos",panel:"piano",desc:"Harder, clearer attack, great for rhythmic chords: high index, prominent hammer and a touch of chorus.",make:()=>mk(
   [["kbd","keyin",0,0],["noise1","noise",0,1],["hpf1","hpf",0,2,{cutoff:3500,res:0.1}],["fm1","fm",1,0,{ratio:1,index:0.7}],["osc2","osc",1,1,{wave:"sine",detune:6}],["env1","adsr",1,2,{a:0.001,d:0.4,s:0,r:0.1}],["ampH","vca",2,2],["mix1","mixer",2,0,{l1:0.8,l2:0.45,l3:0.16}],["envH","adsr",3,2,{a:0.001,d:0.035,s:0,r:0.02}],["flt1","ladder",3,0,{cutoff:4500,res:0.05}],["env2","adsr",3,1,{a:0.002,d:3,s:0,r:0.25}],["amp1","vca",4,0],["cho1","chorus",100,0,{rate:0.5,depth:0.2,mix:0.2}],["rev1","reverb",101,0,{size:1.2,mix:0.15}],["out","output",102,0,{level:0.3}]],
   ["kbd.pitch>fm1.freq","kbd.pitch>osc2.freq","env1.out>fm1.index:3.4","fm1.out>mix1.in1","osc2.out>mix1.in2","noise1.out>hpf1.in","hpf1.out>ampH.in","envH.out>ampH.gain","ampH.out>mix1.in3","mix1.out>flt1.in","kbd.pitch>flt1.cutoffMod:5","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
- {name:"Piano con pedale (ambiente)",group:"Pianoforte",panel:"piano",desc:"Come il piano a coda, ma con il pedale del sustain premuto: rilascio lungo, riverbero ampio e un chorus lieve.",make:()=>mk(
+ {name:"Pedal Piano (Ambient)",group:"Pianos",panel:"piano",desc:"Like the grand piano but with the sustain pedal held: long release, wide reverb and a light chorus.",make:()=>mk(
   [["kbd","keyin",0,0],["noise1","noise",0,1],["hpf1","hpf",0,2,{cutoff:2800,res:0.1}],["fm1","fm",1,0,{ratio:1,index:0.5}],["osc2","osc",1,1,{wave:"sine",detune:5}],["env1","adsr",1,2,{a:0.001,d:0.55,s:0,r:0.1}],["ampH","vca",2,2],["mix1","mixer",2,0,{l1:0.8,l2:0.45,l3:0.1}],["envH","adsr",3,2,{a:0.001,d:0.035,s:0,r:0.02}],["flt1","ladder",3,0,{cutoff:2600,res:0.05}],["env2","adsr",3,1,{a:0.002,d:6,s:0,r:1.4}],["amp1","vca",4,0],["cho1","chorus",100,0,{rate:0.4,depth:0.3,mix:0.25}],["rev1","reverb",101,0,{size:3.5,mix:0.38}],["out","output",102,0,{level:0.28}]],
   ["kbd.pitch>fm1.freq","kbd.pitch>osc2.freq","env1.out>fm1.index:2.4","fm1.out>mix1.in1","osc2.out>mix1.in2","noise1.out>hpf1.in","hpf1.out>ampH.in","envH.out>ampH.gain","ampH.out>mix1.in3","mix1.out>flt1.in","kbd.pitch>flt1.cutoffMod:3.5","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])}
 ];
+{ const ORD=["Init Patch", "Grand Piano", "Upright Piano", "Felt Piano", "Bright Pop Piano", "Pedal Piano (Ambient)", "Fender Rhodes – Mark I", "Fender Rhodes – Suitcase (Tremolo)", "FM Electric Piano", "Drawbar Organ", "Hammond C3 – 888000000 (Slow Leslie)", "Hammond C3 – 888000000 (Fast Leslie)", "Farfisa Compact – Flute, Oboe, Flute 4′", "Farfisa Compact – Booster", "Strings 70s", "ARP String Ensemble – Violins", "ARP String Ensemble – Cellos & Violas", "Warm Pad", "Air Pad", "Abyss Pad", "Supersaw", "Solo Lead", "Brass", "Shine On - P I", "Shine On - P III", "Prophet-5 – One of My Turns (intro)", "Prophet-5 – Sync Lead (Run Like Hell)", "Moog Bass", "Pizzicato", "FM Bell", "Arp – Dry Pluck", "Arp – Digital Staccato", "Arp – Sequencer Bass", "Arp – Soft Flute", "Arp – Velvet", "Arp – Kalimba", "Arp – FM Bells", "Arp – FM Metal", "Arp – Steel (Sync)", "Arp – Nocturne", "Synth Kick", "Snare", "Hi-hat – Closed", "Hi-hat – Open", "Cymbal", "Noise Burst"]; PRESETS.sort((x,y)=>ORD.indexOf(x.name)-ORD.indexOf(y.name)); }
 const UKEY="synth-user-presets", pre=document.getElementById("pre");
-let user=[]; try{ user=JSON.parse(localStorage.getItem(UKEY))||[]; }catch(e){}
+let user=[]; try{ user=JSON.parse(localStorage.getItem(UKEY))||[]; user.forEach(u=>fixLegacy(u.patch)); }catch(e){}
 function fillPre(sel){
-  pre.innerHTML='<option value="">— scegli —</option>'+presetGroups()
-    +(user.length?'<optgroup label="Miei">'+user.map((q,i)=>`<option value="u${i}">${q.name}</option>`).join("")+'</optgroup>':""); if(sel) pre.value=sel;
+  pre.innerHTML='<option value="">— choose —</option>'+presetGroups()
+    +(user.length?'<optgroup label="My Presets">'+user.map((q,i)=>`<option value="u${i}">${q.name}</option>`).join("")+'</optgroup>':""); if(sel) pre.value=sel;
 }
 let prevVoices=null;
 pre.onchange=()=>{ const v=pre.value; if(!v) return;
@@ -834,8 +837,8 @@ pre.onchange=()=>{ const v=pre.value; if(!v) return;
   patch=v[0]==="i"?q.make():JSON.parse(JSON.stringify(q.patch)); if(q.voices){ if(prevVoices===null) prevVoices=nv.value; nv.value=String(q.voices); } else if(prevVoices!==null){ nv.value=prevVoices; prevVoices=null; }
   if(v[0]==="i"){ patch.name=q.name; patch.desc=q.desc||""; patch.panel=q.panel||null; patch.arp=Object.assign(defaultArp(),q.arp||{}); if(q.noVel) patch.noVel=true; }
   sel=selCab=null; loading=true; commit(); loading=false; patch.mod=false; updateMon(); msg(q.name+(q.desc?": "+q.desc:"")); pre.blur(); };
-document.getElementById("savep").onclick=()=>{ const n=(prompt("Nome del preset")||"").trim(); if(!n) return;
-  patch.name=n; patch.mod=false; user.push({name:n,patch:JSON.parse(JSON.stringify(patch))}); updateMon(); try{ localStorage.setItem(UKEY,JSON.stringify(user)); }catch(e){} fillPre("u"+(user.length-1)); msg("Preset salvato nel browser: "+n); };
+document.getElementById("savep").onclick=()=>{ const n=(prompt("Preset name")||"").trim(); if(!n) return;
+  patch.name=n; patch.mod=false; user.push({name:n,patch:JSON.parse(JSON.stringify(patch))}); updateMon(); try{ localStorage.setItem(UKEY,JSON.stringify(user)); }catch(e){} fillPre("u"+(user.length-1)); msg("Preset saved in the browser: "+n); };
 fillPre();
 
 /* ---------- Pannello ---------- */
@@ -847,7 +850,7 @@ function renderAuto(host){
   const mods=patch.modules.slice().sort((a,b)=>(a.scope===b.scope?0:a.scope==="voice"?-1:1)||(RANK[a.type]-RANK[b.type])||(a.x-b.x));
   let last=null;
   mods.forEach(m=>{
-    if(m.scope!==last){ last=m.scope; host.insertAdjacentHTML("beforeend",`<div class="sec">${m.scope==="voice"?"Per voce · "+nv.value+(nv.value==="1"?" voce":" voci"):"Master"}</div>`); }
+    if(m.scope!==last){ last=m.scope; host.insertAdjacentHTML("beforeend",`<div class="sec">${m.scope==="voice"?"Per voice · "+nv.value+(nv.value==="1"?" voice":" voices"):"Master"}</div>`); }
     const d=DEF[m.type], fam=FAM[m.type], id=m.id, pr=m.params, card=document.createElement("div");
     card.className="pn-card"; card.style.setProperty("--fc","var(--f-"+fam+")");
     card.innerHTML=`<div class="ch"><b>${d.label}</b><span>${id}</span></div><div class="sub">${subtitle(m)}</div><div class="kns"></div>`;
@@ -860,7 +863,7 @@ function renderAuto(host){
     patch.cables.filter(c=>c.from.split(".")[0]===id&&c.amount!==undefined).forEach(c=>{ const tp=c.to.split(".")[1],
       R=amtR(tp,m.type);
       knob(w,"→ "+(PL[tp]||tp),c,"amount",R[0],R[1],R[2],R[3],false,()=>voices.forEach(v=>{ const g=v.gains.get(c); if(g) g.gain.value=c.amount; }),fam); });
-    if(m.type==="modwheel") w.innerHTML=`<span style="color:var(--mut);font-size:12px">Segue la rotella MOD (anche dal controller MIDI, CC1).</span>`;
+    if(m.type==="modwheel") w.innerHTML=`<span style="color:var(--mut);font-size:12px">Follows the MOD wheel (also from the MIDI controller, CC1).</span>`;
     else if(!w.children.length) w.innerHTML=`<span style="color:var(--mut);font-size:12px">Nessun parametro.</span>`;
     host.appendChild(card);
   });
@@ -868,26 +871,26 @@ function renderAuto(host){
 /* ---------- Monitor del preset ---------- */
 function updateMon(){
   const n=document.getElementById("monName"); if(!n) return;
-  n.textContent=patch.name||"Patch libera";
-  document.getElementById("monDesc").textContent=patch.desc||"Patch costruita a mano sulla lavagna.";
+  n.textContent=patch.name||"Free patch";
+  document.getElementById("monDesc").textContent=patch.desc||"Patch built by hand on the board.";
   const nvv=+nv.value, t=tplOK()&&panelMode==="model"?TEMPLATES[patch.panel].name:"";
-  document.getElementById("monChips").innerHTML=`<span>${nvv===1?"mono":nvv+" voci"}</span>`+(t?`<span>${t}</span>`:"")+(patch.arp&&patch.arp.on?`<span>arp ${patch.arp.bpm}</span>`:"")+(patch.mod?`<span class="mod">modificato</span>`:"");
+  document.getElementById("monChips").innerHTML=`<span>${nvv===1?"mono":nvv+" voices"}</span>`+(t?`<span>${t}</span>`:"")+(patch.arp&&patch.arp.on?`<span>arp ${patch.arp.bpm}</span>`:"")+(patch.mod?`<span class="mod">modified</span>`:"");
 }
 /* ---------- Modelli di pannello su misura ---------- */
 let panelMode="model";
 const ENV=id=>[[id,"a","A"],[id,"d","D"],[id,"s","S"],[id,"r","R"]];
-const FX=[["cho1","rate","Cho vel."],["cho1","depth","Cho prof."],["cho1","mix","Cho mix"],["dly1","time","Delay"],["dly1","sync","Sync"],["dly1","fb","Feedback"],["dly1","mix","Dly mix"],["rev1","size","Riverbero"],["rev1","mix","Rev mix"]];
+const FX=[["cho1","rate","Cho Rate"],["cho1","depth","Cho Depth"],["cho1","mix","Cho mix"],["dly1","time","Delay"],["dly1","sync","Sync"],["dly1","fb","Feedback"],["dly1","mix","Dly mix"],["rev1","size","Reverb"],["rev1","mix","Rev mix"]];
 const TEMPLATES={
-  mini:{name:"Stile Minimoog",need:["osc1","flt1","env1"],sections:[
+  mini:{name:"Minimoog Style",need:["osc1","flt1","env1"],sections:[
     ["Controller",[["kbd","glide","Glide"],["lfo1","rate","LFO"]]],
-    ["Oscillatori",[["osc1","wave","Osc 1"],["osc1","oct","Ottava"],["osc1","detune","Fine"],"|",["osc2","wave","Osc 2"],["osc2","oct","Ottava"],["osc2","detune","Fine"],"|",["osc3","wave","Osc 3"],["osc3","oct","Ottava"],["osc3","detune","Fine"]]],
-    ["Mixer",[["mix1","l1","Osc 1"],["mix1","l2","Osc 2"],["mix1","l3","Ingr. 3"]]],
-    ["Filtro",[["flt1","cutoff","Taglio"],["flt1","res","Enfasi"],["env1>flt1.cutoffMod","amount","Contorno"]]],
-    ["Contorno filtro",ENV("env1")],["Contorno volume",ENV("env2")],["Effetti",FX],["Uscita",[["out","level","Livello"]]]]},
-  fm:{name:"Stile FM",need:["fm1","env2"],sections:[
+    ["Oscillators",[["osc1","wave","Osc 1"],["osc1","oct","Octave"],["osc1","detune","Fine"],"|",["osc2","wave","Osc 2"],["osc2","oct","Octave"],["osc2","detune","Fine"],"|",["osc3","wave","Osc 3"],["osc3","oct","Octave"],["osc3","detune","Fine"]]],
+    ["Mixer",[["mix1","l1","Osc 1"],["mix1","l2","Osc 2"],["mix1","l3","In 3"]]],
+    ["Filter",[["flt1","cutoff","Cutoff"],["flt1","res","Emphasis"],["env1>flt1.cutoffMod","amount","Envelope"]]],
+    ["Filter Envelope",ENV("env1")],["Volume Envelope",ENV("env2")],["Effects",FX],["Output",[["out","level","Level"]]]]},
+  fm:{name:"FM Style",need:["fm1","env2"],sections:[
     ["Controller",[["kbd","glide","Glide"]]],
-    ["Operatori FM",[["fm1","ratio","Rapporto"],["fm1","index","Indice"],["env1>fm1.index","amount","Indice env"]]],
-    ["Contorno indice",ENV("env1")],["Filtro",[["flt1","cutoff","Taglio"],["flt1","res","Enfasi"]]],["Contorno volume",ENV("env2")],["Effetti",FX],["Uscita",[["out","level","Livello"]]]]}
+    ["FM Operators",[["fm1","ratio","Ratio"],["fm1","index","Index"],["env1>fm1.index","amount","Index Env"]]],
+    ["Index Envelope",ENV("env1")],["Filter",[["flt1","cutoff","Cutoff"],["flt1","res","Emphasis"]]],["Volume Envelope",ENV("env2")],["Effects",FX],["Output",[["out","level","Level"]]]]}
 };
 function tplOK(){ const t=TEMPLATES[patch.panel]; return !!(t&&t.need.every(id=>mod(id))); }
 function resolveItem(it){
@@ -961,7 +964,7 @@ function arpFlash(note,t,dur){ const now=ctx.currentTime;
   setTimeout(()=>arpLit(note,false),Math.max(0,(t+dur-now)*1000)); }
 function renderArp(){
   const el=document.getElementById("arpBar"); if(!el) return; const A=ARP(); el.innerHTML=""; el.style.setProperty("--fc","var(--f-mod)");
-  el.insertAdjacentHTML("beforeend",`<div class="ch"><b>Arpeggiatore</b><i class="led" id="arpLed"></i><span>${A.on?"attivo":"spento"}</span></div>`);
+  el.insertAdjacentHTML("beforeend",`<div class="ch"><b>Arpeggiator</b><i class="led" id="arpLed"></i><span>${A.on?"on":"off"}</span></div>`);
   const w=document.createElement("div"); w.className="kns arpk"; el.appendChild(w);
   const s1=document.createElement("div"), s2=document.createElement("div"); s1.className="stk b"; s2.className="stk"; w.appendChild(s1); w.appendChild(s2);
   const tg=(txt,key,fn)=>{ const b=document.createElement("button"); b.className="tgl"+(A[key]?" on":""); b.textContent=txt;
@@ -970,41 +973,41 @@ function renderArp(){
   const sl=(label,key,opts)=>{ const d=document.createElement("div"); d.className="kn sl";
     d.innerHTML=`<div class="l">${label}</div><select>${opts.map(([v,t])=>`<option value="${v}"${v===A[key]?" selected":""}>${t}</option>`).join("")}</select>`;
     d.querySelector("select").onchange=e=>{ A[key]=e.target.value; save(); e.target.blur(); }; s2.appendChild(d); };
-  sl("modo","mode",[["up","Su"],["down","Giù"],["updown","Su-giù"],["random","Casuale"],["order","Ordine"]]);
-  sl("divisione","div",[["1/4","1/4"],["1/8","1/8"],["1/8T","1/8 terzine"],["1/16","1/16"],["1/16T","1/16 terzine"],["1/32","1/32"]]);
+  sl("mode","mode",[["up","Up"],["down","Down"],["updown","Up-Down"],["random","Random"],["order","Order"]]);
+  sl("division","div",[["1/4","1/4"],["1/8","1/8"],["1/8T","1/8 triplets"],["1/16","1/16"],["1/16T","1/16 triplets"],["1/32","1/32"]]);
   const k=(label,key,min,max,step,unit)=>knob(w,label,A,key,min,max,step,unit,false,()=>{ if(key==="bpm") refreshDelays(); },"mod");
-  k("tempo","bpm",40,220,1," BPM"); k("ottave","oct",1,4,1,""); k("gate","gate",0.1,1,0.01,""); k("swing","swing",0,0.6,0.01,"");
+  k("tempo","bpm",40,220,1," BPM"); k("octaves","oct",1,4,1,""); k("gate","gate",0.1,1,0.01,""); k("swing","swing",0,0.6,0.01,"");
   updateMon();
 }
 
 function renderVel(){
   const el=document.getElementById("velBar"); if(!el) return; el.innerHTML=""; el.style.setProperty("--fc","var(--f-src)");
-  el.insertAdjacentHTML("beforeend",`<div class="ch"><b>Dinamica del tocco</b><span>${!VEL.on?"disattivata":(patch.noVel?"ignorata da questo preset":"attiva")}</span></div>`);
+  el.insertAdjacentHTML("beforeend",`<div class="ch"><b>Touch Dynamics</b><span>${!VEL.on?"off":(patch.noVel?"ignored by this preset":"on")}</span></div>`);
   const w=document.createElement("div"); w.className="kns arpk"; el.appendChild(w);
   const s1=document.createElement("div"); s1.className="stk b"; w.appendChild(s1);
   const tg=(txt,on,fn)=>{ const b=document.createElement("button"); b.className="tgl"+(on?" on":""); b.textContent=txt; b.onclick=()=>{ fn(); renderVel(); }; s1.appendChild(b); };
-  tg("DINAMICA",VEL.on,()=>{ VEL.on=!VEL.on; saveVel(); });
-  tg("QUESTO PRESET",!patch.noVel,()=>{ if(patch.noVel) delete patch.noVel; else patch.noVel=true; patch.mod=true; save(); updateMon&&updateMon(); });
-  const d=document.createElement("div"); d.className="kn sl"; d.innerHTML=`<div class="l">curva</div><select>${["morbida","normale","dura"].map(c=>`<option${c===VEL.curve?" selected":""}>${c}</option>`).join("")}</select>`;
+  tg("DYNAMICS",VEL.on,()=>{ VEL.on=!VEL.on; saveVel(); });
+  tg("THIS PRESET",!patch.noVel,()=>{ if(patch.noVel) delete patch.noVel; else patch.noVel=true; patch.mod=true; save(); updateMon&&updateMon(); });
+  const d=document.createElement("div"); d.className="kn sl"; d.innerHTML=`<div class="l">curve</div><select>${["soft","normal","hard"].map(c=>`<option${c===VEL.curve?" selected":""}>${c}</option>`).join("")}</select>`;
   d.querySelector("select").onchange=e=>{ VEL.curve=e.target.value; saveVel(); e.target.blur(); }; w.appendChild(d);
-  knob(w,"volume",VEL,"vol",0,1,0.01,"",false,saveVel,"src"); knob(w,"brillantezza",VEL,"bright",0,1,0.01,"",false,saveVel,"src");
+  knob(w,"volume",VEL,"vol",0,1,0.01,"",false,saveVel,"src"); knob(w,"brightness",VEL,"bright",0,1,0.01,"",false,saveVel,"src");
   const led=document.createElement("div"); led.className="kn vled";
-  led.innerHTML=`<div class="l">ultimo tocco</div><div id="velLed" class="octled" style="width:80px"><b id="velV">---</b><span>VELOCITY</span></div>`; w.appendChild(led);
+  led.innerHTML=`<div class="l">last touch</div><div id="velLed" class="octled" style="width:80px"><b id="velV">---</b><span>VELOCITY</span></div>`; w.appendChild(led);
 }
 /* ---------- Altri modelli: Organo e Percussioni ---------- */
 const amtR=(tp,src)=>tp==="cutoffMod"?[-8000,8000,10," Hz"]:tp==="index"?[-10,10,0.1,""]:(tp==="freq"&&src==="adsr")?[-400,400,1," Hz"]:tp==="gain"?[-1,1,0.01,""]:tp==="ratio"?[-8,8,0.05,""]:[-100,100,0.5," Hz"];
-TEMPLATES.organ={name:"Stile Organo",need:["osc1","mix1","env1"],sections:[
-  ["Registri",[["mix1","l3","16'","bar"],["mix1","l1","8'","bar"],["mix1","l2","4'","bar"]]],
-  ["Vibrato",[["lfo1","rate","Velocità"],["lfo1>*.freq","amount","Profondità"]]],
-  ["Contorno",[["env1","a","Attacco"],["env1","r","Rilascio"]]],
-  ["Chorus",[["cho1","rate","Velocità"],["cho1","depth","Profondità"],["cho1","mix","Mix"]]],
-  ["Riverbero",[["rev1","size","Durata"],["rev1","mix","Mix"]]],
-  ["Uscita",[["out","level","Livello"]]]]};
-TEMPLATES.perc={name:"Stile Percussioni",need:["env2"],sections:[
-  ["Tono",[["osc1","wave","Onda"],["osc1","oct","Ottava"],["env1>osc1.freq","amount","Caduta"]]],
-  ["Mixer",[["mix1","l1","Tono"],["mix1","l2","Rumore"]]],
-  ["Filtro",[["flt1","cutoff","Timbro"],["flt1","res","Risonanza"],["env1>flt1.cutoffMod","amount","Apertura"]]],
-  ["Contorno 1",ENV("env1")],["Contorno volume",ENV("env2")],["Effetti",FX],["Uscita",[["out","level","Livello"]]]]};
+TEMPLATES.organ={name:"Organ Style",need:["osc1","mix1","env1"],sections:[
+  ["Registers",[["mix1","l3","16'","bar"],["mix1","l1","8'","bar"],["mix1","l2","4'","bar"]]],
+  ["Vibrato",[["lfo1","rate","Rate"],["lfo1>*.freq","amount","Depth"]]],
+  ["Envelope",[["env1","a","Attack"],["env1","r","Release"]]],
+  ["Chorus",[["cho1","rate","Rate"],["cho1","depth","Depth"],["cho1","mix","Mix"]]],
+  ["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],
+  ["Output",[["out","level","Level"]]]]};
+TEMPLATES.perc={name:"Percussion Style",need:["env2"],sections:[
+  ["Tone",[["osc1","wave","Wave"],["osc1","oct","Octave"],["env1>osc1.freq","amount","Drop"]]],
+  ["Mixer",[["mix1","l1","Tone"],["mix1","l2","Noise"]]],
+  ["Filter",[["flt1","cutoff","Timbre"],["flt1","res","Resonance"],["env1>flt1.cutoffMod","amount","Opening"]]],
+  ["Envelope 1",ENV("env1")],["Volume Envelope",ENV("env2")],["Effects",FX],["Output",[["out","level","Level"]]]]};
 /* registro a barra (come i drawbar dell'organo), 9 posizioni */
 function drawbar(host,label,obj,k,min,max,step,live,fam){
   const d=document.createElement("div"); d.className="kn"; d.style.setProperty("--c","var(--f-"+fam+")");
@@ -1021,54 +1024,54 @@ function drawbar(host,label,obj,k,min,max,step,live,fam){
 }
 
 /* ---------- Modello Pad (più oscillatori) ---------- */
-TEMPLATES.pad={name:"Stile Pad",need:["osc1","osc2","mix1","flt1","env1"],sections:[
-  ["Oscillatori",[["osc1","wave","Onda 1"],["osc2","wave","Onda 2"],["osc3","wave","Onda 3"],"|",["osc1","detune","Scorda 1"],["osc2","detune","Scorda 2"],["osc3","detune","Scorda 3"],"|",["osc1","oct","Ott. 1"],["osc2","oct","Ott. 2"],["osc3","oct","Ott. 3"]]],
-  ["Livelli",[["mix1","l1","1","bar"],["mix1","l2","2","bar"],["mix1","l3","3","bar"]]],
-  ["Movimento",[["lfo1","rate","Velocità"],["lfo1>flt1.cutoffMod","amount","Filtro"]]],
-  ["Filtro",[["flt1","cutoff","Taglio"],["flt1","res","Enfasi"],["env1>flt1.cutoffMod","amount","Contorno"]]],
-  ["Evoluzione filtro",ENV("env1")],["Evoluzione volume",ENV("env2")],
-  ["Chorus",[["cho1","rate","Velocità"],["cho1","depth","Profondità"],["cho1","mix","Mix"]]],
-  ["Ensemble (2° chorus)",[["cho2","rate","Velocità"],["cho2","depth","Profondità"],["cho2","mix","Mix"]]],
-  ["Delay",[["dly1","time","Tempo"],["dly1","sync","Sync"],["dly1","fb","Feedback"],["dly1","mix","Mix"]]],
-  ["Riverbero",[["rev1","size","Durata"],["rev1","mix","Mix"]]],
-  ["Uscita",[["out","level","Livello"]]]]};
+TEMPLATES.pad={name:"Pad Style",need:["osc1","osc2","mix1","flt1","env1"],sections:[
+  ["Oscillators",[["osc1","wave","Wave 1"],["osc2","wave","Wave 2"],["osc3","wave","Wave 3"],"|",["osc1","detune","Detune 1"],["osc2","detune","Detune 2"],["osc3","detune","Detune 3"],"|",["osc1","oct","Oct 1"],["osc2","oct","Oct 2"],["osc3","oct","Oct 3"]]],
+  ["Levels",[["mix1","l1","1","bar"],["mix1","l2","2","bar"],["mix1","l3","3","bar"]]],
+  ["Motion",[["lfo1","rate","Rate"],["lfo1>flt1.cutoffMod","amount","Filter"]]],
+  ["Filter",[["flt1","cutoff","Cutoff"],["flt1","res","Emphasis"],["env1>flt1.cutoffMod","amount","Envelope"]]],
+  ["Filter Evolution",ENV("env1")],["Volume Evolution",ENV("env2")],
+  ["Chorus",[["cho1","rate","Rate"],["cho1","depth","Depth"],["cho1","mix","Mix"]]],
+  ["Ensemble (2nd chorus)",[["cho2","rate","Rate"],["cho2","depth","Depth"],["cho2","mix","Mix"]]],
+  ["Delay",[["dly1","time","Time"],["dly1","sync","Sync"],["dly1","fb","Feedback"],["dly1","mix","Mix"]]],
+  ["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],
+  ["Output",[["out","level","Level"]]]]};
 
 /* ---------- Nuovi modelli: Sync, Combo, Hammond, Rhodes ---------- */
-TEMPLATES.sync={name:"Stile Prophet",need:["sy1","flt1","env2"],sections:[
-  ["Oscillatore sync",[["sy1","ratio","Rapporto"],["env1>sy1.ratio","amount","Poly-Mod"]]],
-  ["Contorno Poly-Mod",ENV("env1")],
-  ["Filtro",[["flt1","cutoff","Taglio"],["flt1","res","Enfasi"]]],
-  ["Ruota MOD",[["lfo1","rate","Velocità LFO"],["vib1>flt1.cutoffMod","amount","Verso filtro"]]],
-  ["Amplificatore",ENV("env2")],["Riverbero",[["rev1","size","Durata"],["rev1","mix","Mix"]]],["Uscita",[["out","level","Livello"]]]]};
-TEMPLATES.combo={name:"Stile Farfisa",need:["osc1","mix1","env1"],sections:[
-  ["Registri",[["mix1","l1","Reg. 1","bar"],["mix1","l2","Reg. 2","bar"],["mix1","l3","Reg. 3","bar"]]],
-  ["Timbro",[["flt1","cutoff","Taglio"],["flt1","res","Enfasi"]]],
-  ["Vibrato",[["lfo1","rate","Velocità"],["lfo1>*.freq","amount","Profondità"]]],
-  ["Contorno",[["env1","a","Attacco"],["env1","r","Rilascio"]]],
-  ["Riverbero a molla",[["rev1","size","Durata"],["rev1","mix","Mix"]]],["Uscita",[["out","level","Livello"]]]]};
-TEMPLATES.hammond={name:"Stile Hammond",need:["osc1","mix1","mix3","env2"],sections:[
+TEMPLATES.sync={name:"Prophet Style",need:["sy1","flt1","env2"],sections:[
+  ["Sync Oscillator",[["sy1","ratio","Ratio"],["env1>sy1.ratio","amount","Poly-Mod"]]],
+  ["Poly-Mod Envelope",ENV("env1")],
+  ["Filter",[["flt1","cutoff","Cutoff"],["flt1","res","Emphasis"]]],
+  ["Mod Wheel",[["lfo1","rate","LFO Rate"],["vib1>flt1.cutoffMod","amount","To Filter"]]],
+  ["Amplifier",ENV("env2")],["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
+TEMPLATES.combo={name:"Farfisa Style",need:["osc1","mix1","env1"],sections:[
+  ["Registers",[["mix1","l1","Reg. 1","bar"],["mix1","l2","Reg. 2","bar"],["mix1","l3","Reg. 3","bar"]]],
+  ["Timbre",[["flt1","cutoff","Cutoff"],["flt1","res","Emphasis"]]],
+  ["Vibrato",[["lfo1","rate","Rate"],["lfo1>*.freq","amount","Depth"]]],
+  ["Envelope",[["env1","a","Attack"],["env1","r","Release"]]],
+  ["Spring Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
+TEMPLATES.hammond={name:"Hammond Style",need:["osc1","mix1","mix3","env2"],sections:[
   ["Drawbar",[["mix1","l1","16'","bar"],["mix1","l2","5⅓'","bar"],["mix1","l3","8'","bar"],["mix2","l2","4'","bar"],["mix2","l3","2'","bar"]]],
-  ["Percussione",[["mix3","l2","3ª armonica","bar"],["envP","d","Decad."],["mix3","l3","Click","bar"]]],
-  ["Leslie",[["lfo1","rate","Tremolo vel."],["trem>amp1.gain","amount","Tremolo prof."],["cho1","rate","Chorus vel."],["cho1","depth","Chorus prof."],["cho1","mix","Mix"]]],
-  ["Riverbero",[["rev1","size","Durata"],["rev1","mix","Mix"]]],["Uscita",[["out","level","Livello"]]]]};
-TEMPLATES.rhodes={name:"Stile Rhodes",need:["fm1","env2"],sections:[
-  ["Tono (barra)",[["fm1","index","Indice"],["env1>fm1.index","amount","Morbidezza"],["env1","d","Decad. tono"]]],
-  ["Rebbio (tine)",[["mix1","l2","Livello"],["osc2","detune","Accordatura"],["env3","d","Decad."]]],
-  ["Corpo",[["env2","d","Decad. nota"],["env2","r","Rilascio"],["flt1","cutoff","Timbro"]]],
-  ["Tremolo",[["lfo1","rate","Velocità"],["trem>amp1.gain","amount","Profondità"]]],
-  ["Chorus",[["cho1","rate","Velocità"],["cho1","depth","Profondità"],["cho1","mix","Mix"]]],
-  ["Riverbero",[["rev1","size","Durata"],["rev1","mix","Mix"]]],["Uscita",[["out","level","Livello"]]]]};
-function presetGroups(){ const groups=[]; PRESETS.forEach((q,i)=>{ const g=q.group||"Iconici"; let G=groups.find(x=>x[0]===g); if(!G){ G=[g,[]]; groups.push(G); } G[1].push('<option value="i'+i+'">'+q.name+'</option>'); });
+  ["Percussion",[["mix3","l2","3rd Harmonic","bar"],["envP","d","Decay"],["mix3","l3","Click","bar"]]],
+  ["Leslie",[["lfo1","rate","Tremolo Rate"],["trem>amp1.gain","amount","Tremolo Depth"],["cho1","rate","Chorus Rate"],["cho1","depth","Chorus Depth"],["cho1","mix","Mix"]]],
+  ["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
+TEMPLATES.rhodes={name:"Rhodes Style",need:["fm1","env2"],sections:[
+  ["Tone (Bar)",[["fm1","index","Index"],["env1>fm1.index","amount","Mellowness"],["env1","d","Tone Decay"]]],
+  ["Tine",[["mix1","l2","Level"],["osc2","detune","Tuning"],["env3","d","Decay"]]],
+  ["Body",[["env2","d","Note Decay"],["env2","r","Release"],["flt1","cutoff","Timbre"]]],
+  ["Tremolo",[["lfo1","rate","Rate"],["trem>amp1.gain","amount","Depth"]]],
+  ["Chorus",[["cho1","rate","Rate"],["cho1","depth","Depth"],["cho1","mix","Mix"]]],
+  ["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
+function presetGroups(){ const groups=[]; PRESETS.forEach((q,i)=>{ const g=q.group||"Basics"; let G=groups.find(x=>x[0]===g); if(!G){ G=[g,[]]; groups.push(G); } G[1].push('<option value="i'+i+'">'+q.name+'</option>'); });
   return groups.map(([g,o])=>'<optgroup label="'+g+'">'+o.join("")+'</optgroup>').join(""); }
 
-TEMPLATES.piano={name:"Stile Pianoforte",need:["fm1","osc2","env2"],sections:[
-  ["Tono",[["fm1","index","Indice base"],["env1>fm1.index","amount","Brillantezza"],["env1","d","Caduta armonici"]]],
-  ["Corde",[["mix1","l2","2ª corda"],["osc2","detune","Scordatura"]]],
-  ["Martelletto",[["mix1","l3","Livello"],["envH","d","Durata"],["hpf1","cutoff","Timbro"]]],
-  ["Corpo",[["flt1","cutoff","Taglio"],["kbd>flt1.cutoffMod","amount","Più chiaro in alto"]]],
-  ["Decadimento",[["env2","d","Caduta nota"],["env2","r","Smorzatore"]]],
-  ["Chorus",[["cho1","rate","Velocità"],["cho1","depth","Profondità"],["cho1","mix","Mix"]]],
-  ["Riverbero",[["rev1","size","Durata"],["rev1","mix","Mix"]]],["Uscita",[["out","level","Livello"]]]]};
+TEMPLATES.piano={name:"Piano Style",need:["fm1","osc2","env2"],sections:[
+  ["Tone",[["fm1","index","Base Index"],["env1>fm1.index","amount","Brightness"],["env1","d","Harmonic Decay"]]],
+  ["Strings",[["mix1","l2","2nd String"],["osc2","detune","Detune"]]],
+  ["Hammer",[["mix1","l3","Level"],["envH","d","Size"],["hpf1","cutoff","Timbre"]]],
+  ["Body",[["flt1","cutoff","Cutoff"],["kbd>flt1.cutoffMod","amount","Brighter Up Top"]]],
+  ["Decay",[["env2","d","Note Decay"],["env2","r","Damper"]]],
+  ["Chorus",[["cho1","rate","Rate"],["cho1","depth","Depth"],["cho1","mix","Mix"]]],
+  ["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
 /* tastiera sullo schermo */
 let kbBase=48;
 function buildKeys(){
@@ -1153,37 +1156,37 @@ const clampN=(v,a,b)=>Math.max(a,Math.min(b,v));
 const has=(o,k)=>typeof k==="string"&&Object.prototype.hasOwnProperty.call(o,k);
 function cleanPatch(o){
   const bad=t=>{ throw new Error(t); };
-  if(!o||typeof o!=="object"||!Array.isArray(o.modules)||!Array.isArray(o.cables)) bad("Il file non contiene una patch riconoscibile.");
-  if(o.modules.length>80||o.cables.length>300) bad("Patch troppo grande.");
-  const out={v:5,div:clampN(Number.isFinite(+o.div)?+o.div:1040,300,BW-300),name:String(o.name||"Patch importata").slice(0,80),desc:String(o.desc||"").slice(0,300),panel:has(TEMPLATES,o.panel)?o.panel:null,modules:[],cables:[]};
+  if(!o||typeof o!=="object"||!Array.isArray(o.modules)||!Array.isArray(o.cables)) bad("The file does not contain a recognizable patch.");
+  if(o.modules.length>80||o.cables.length>300) bad("Patch too large.");
+  const out={v:5,div:clampN(Number.isFinite(+o.div)?+o.div:1040,300,BW-300),name:String(o.name||"Imported patch").slice(0,80),desc:String(o.desc||"").slice(0,300),panel:has(TEMPLATES,o.panel)?o.panel:null,modules:[],cables:[]};
   if(o.noVel===true) out.noVel=true;
   const ids=new Set();
   for(const m of o.modules){
     if(!m||typeof m!=="object"||!has(DEF,m.type)) bad("Modulo sconosciuto"+(m&&m.type?": "+String(m.type).slice(0,20):"")+".");
-    if(typeof m.id!=="string"||!/^[A-Za-z][A-Za-z0-9_-]{0,23}$/.test(m.id)||ids.has(m.id)) bad("Identificatore di modulo non valido o ripetuto.");
+    if(typeof m.id!=="string"||!/^[A-Za-z][A-Za-z0-9_-]{0,23}$/.test(m.id)||ids.has(m.id)) bad("Invalid or duplicate module identifier.");
     ids.add(m.id);
     const d=DEF[m.type], x=clampN(Number.isFinite(+m.x)?+m.x:20,0,BW-W), params=Object.assign({},d.init), src=(m.params&&typeof m.params==="object")?m.params:{};
     d.params.forEach(p=>{ const v=src[p.k];
-      if(p.opts){ if(p.opts.includes(v)) params[p.k]=v; }
+      if(p.opts){ const w=(p.k==="sync"&&v==="libero")?"free":v; if(p.opts.includes(w)) params[p.k]=w; }
       else if(typeof v==="number"&&Number.isFinite(v)){ const sp=p.max-p.min, lo=p.min>=0?Math.max(0,p.min-sp):p.min-sp; params[p.k]=clampN(v,lo,p.max+sp); } });
     const y=clampN(Number.isFinite(+m.y)?+m.y:40,28,BH-hgt({type:m.type})-6);
     out.modules.push({id:m.id,type:m.type,x,y,scope:(x+W/2>out.div)?"master":"voice",params});
   }
-  if(out.modules.some(m=>(m.type==="output"&&m.scope!=="master")||(m.type==="keyin"&&m.scope!=="voice"))) bad("Posizioni non valide: la Tastiera sta a sinistra e l’Uscita a destra.");
+  if(out.modules.some(m=>(m.type==="output"&&m.scope!=="master")||(m.type==="keyin"&&m.scope!=="voice"))) bad("Invalid positions: the Keyboard must be on the left and the Output on the right.");
   const adj=Object.create(null), seen=new Set(), PORT=/^([A-Za-z][A-Za-z0-9_-]{0,23})\.([A-Za-z0-9]{1,16})$/;
   const reach=(a,b,vis=Object.create(null))=>{ if(a===b) return true; if(vis[a]) return false; vis[a]=1; return (adj[a]||[]).some(n=>reach(n,b,vis)); };
   for(const c of o.cables){
     const mf=c&&typeof c.from==="string"&&c.from.match(PORT), mt=c&&typeof c.to==="string"&&c.to.match(PORT);
-    if(!mf||!mt) bad("Un cavo non è valido.");
+    if(!mf||!mt) bad("A cable is not valid.");
     const a=out.modules.find(m=>m.id===mf[1]), b=out.modules.find(m=>m.id===mt[1]);
-    if(!a||!b) bad("Un cavo punta a un modulo che non c’è.");
-    if(!DEF[a.type].out.includes(mf[2])||!DEF[b.type].in.includes(mt[2])) bad("Un cavo usa una porta inesistente ("+c.from+" → "+c.to+").");
+    if(!a||!b) bad("A cable points to a module that does not exist.");
+    if(!DEF[a.type].out.includes(mf[2])||!DEF[b.type].in.includes(mt[2])) bad("A cable uses a port that does not exist ("+c.from+" → "+c.to+").");
     const key=c.from+">"+c.to; if(seen.has(key)) continue; seen.add(key);
-    if(a.scope==="master"&&b.scope==="voice") bad("Un cavo torna dal master alle voci.");
-    if(reach(b.id,a.id)) bad("La patch contiene un anello di retroazione tra moduli.");
+    if(a.scope==="master"&&b.scope==="voice") bad("A cable goes from the master section back to the voices.");
+    if(reach(b.id,a.id)) bad("The patch contains a feedback loop between modules.");
     (adj[a.id]=adj[a.id]||[]).push(b.id);
     const cab={from:c.from,to:c.to};
-    if(c.amount!==undefined){ if(typeof c.amount!=="number"||!Number.isFinite(c.amount)) bad("Una quantità di cavo non è valida."); cab.amount=clampN(c.amount,-20000,20000); }
+    if(c.amount!==undefined){ if(typeof c.amount!=="number"||!Number.isFinite(c.amount)) bad("A cable amount is not valid."); cab.amount=clampN(c.amount,-20000,20000); }
     out.cables.push(cab);
   }
   const A=defaultArp(), s=(o.arp&&typeof o.arp==="object")?o.arp:{};
@@ -1198,35 +1201,35 @@ function cleanPatch(o){
 }
 function exportObj(p,voices){ const q=JSON.parse(JSON.stringify(p)); delete q.mod; if(voices) q.voices=voices; return q; }
 function importText(text){
-  let o; try{ o=JSON.parse(text); }catch(e){ throw new Error("Il file non è un JSON valido."); }
+  let o; try{ o=JSON.parse(text); }catch(e){ throw new Error("The file is not valid JSON."); }
   const list=Array.isArray(o&&o.patches)?o.patches:(o&&o.patch)?[o.patch]:[o];
-  if(!list.length||list.length>50) throw new Error("Numero di patch nel file non valido.");
+  if(!list.length||list.length>50) throw new Error("Invalid number of patches in the file.");
   return list.map(cleanPatch);
 }
 function applyImport(list){
   if(list.length>1){
     list.forEach(p=>{ const v=p.voices; delete p.voices; user.push({name:p.name,patch:p}); });
     try{ localStorage.setItem(UKEY,JSON.stringify(user)); }catch(e){}
-    fillPre("u"+(user.length-list.length)); return "Importate "+list.length+" patch nella sezione «Miei» del menu Preset.";
+    fillPre("u"+(user.length-list.length)); return "Imported "+list.length+" patches into the “My Presets” section of the Preset menu.";
   }
   const p=list[0]; if(p.voices){ nv.value=String(p.voices); } delete p.voices;
   patch=p; sel=selCab=null; loading=true; commit(); loading=false; patch.mod=false; updateMon();
-  return "Importata: "+p.name+". Con «Salva come…» la tieni tra i tuoi preset.";
+  return "Imported: "+p.name+". Use “Save as…” to keep it among your presets.";
 }
 function slug(s){ return String(s||"patch").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-+|-+$/g,"").toLowerCase()||"patch"; }
 function download(name,obj){ const b=new Blob([JSON.stringify(obj,null,1)],{type:"application/json"}), a=document.createElement("a");
   a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500); }
-document.getElementById("exp").onclick=()=>{ download(slug(patch.name)+".synth.json",{format:FMT,version:1,patch:exportObj(patch,+nv.value)}); msg("Esportata: "+(patch.name||"patch")+"."); };
-document.getElementById("expAll").onclick=()=>{ if(!user.length){ msg("Non hai ancora preset salvati nella sezione «Miei»."); return; }
-  download("miei-preset.synth.json",{format:FMT,version:1,patches:user.map(u=>exportObj(Object.assign({},u.patch,{name:u.name})))}); msg("Esportati "+user.length+" preset."); };
+document.getElementById("exp").onclick=()=>{ download(slug(patch.name)+".synth.json",{format:FMT,version:1,patch:exportObj(patch,+nv.value)}); msg("Exported: "+(patch.name||"patch")+"."); };
+document.getElementById("expAll").onclick=()=>{ if(!user.length){ msg("You have no saved presets yet in the “My Presets” section."); return; }
+  download("my-presets.synth.json",{format:FMT,version:1,patches:user.map(u=>exportObj(Object.assign({},u.patch,{name:u.name})))}); msg("Exported "+user.length+" presets."); };
 const impf=document.getElementById("impf");
 document.getElementById("imp").onclick=()=>impf.click();
 impf.onchange=async()=>{ const f=impf.files[0]; impf.value=""; if(!f) return;
-  if(f.size>2000000){ msg("Importazione non riuscita: file troppo grande."); return; }
+  if(f.size>2000000){ msg("Import failed: file too large."); return; }
   try{ const list=importText(await f.text());
-    if(list.length===1&&patch.mod&&typeof confirm==="function"&&!confirm("La patch attuale ha modifiche non salvate. Sostituirla con quella importata?")) return;
+    if(list.length===1&&patch.mod&&typeof confirm==="function"&&!confirm("The current patch has unsaved changes. Replace it with the imported one?")) return;
     msg(applyImport(list)); }
-  catch(e){ msg("Importazione non riuscita: "+e.message); } };
+  catch(e){ msg("Import failed: "+e.message); } };
 
 /* ---------- Comandi ---------- */
 const nv=document.getElementById("nv");
@@ -1238,16 +1241,16 @@ PALETTE.forEach(t=>{ const b=document.createElement("button"); b.textContent=DEF
 nv.addEventListener("change",()=>{ if(ctx) rebuildAll(); render(); if(view==="panel") renderPanel(); });
 document.getElementById("reset").onclick=()=>{ patch=defaultPatch(); sel=selCab=null; loading=true; commit(); loading=false; patch.mod=false; updateMon(); };
 let starting=false;
-document.getElementById("go").onclick=async e=>{ if(ctx||starting) return; starting=true; const btn=e.currentTarget||e.target; btn.textContent="Avvio…";
+document.getElementById("go").onclick=async e=>{ if(ctx||starting) return; starting=true; const btn=e.currentTarget||e.target; btn.textContent="Starting…";
   try{
     ctx=new AudioContext({latencyHint:"interactive"}); try{ ctx.resume(); }catch(_){}
     ctx.an=ctx.createAnalyser(); ctx.an.fftSize=2048; ctx.an.smoothingTimeConstant=0.8;
-    try{ await Promise.race([ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET_SRC],{type:"text/javascript"}))), new Promise((_,no)=>setTimeout(()=>no(new Error("tempo scaduto")),4000))]); ctx.hasLadder=true; }
-    catch(err){ ctx.hasLadder=false; msg("Filtro a scala non disponibile ("+(err&&err.message||err)+"): uso il filtro semplice."); }
-    rebuildAll(); arpSync(); initMidi(); btn.classList.add("on"); btn.textContent="Audio attivo";
-  }catch(err){ try{ ctx&&ctx.close(); }catch(_){} ctx=null; btn.classList.remove("on"); btn.textContent="Avvia audio"; msg("Impossibile avviare l'audio: "+(err&&err.message||err)); }
+    try{ await Promise.race([ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET_SRC],{type:"text/javascript"}))), new Promise((_,no)=>setTimeout(()=>no(new Error("timed out")),4000))]); ctx.hasLadder=true; }
+    catch(err){ ctx.hasLadder=false; msg("Ladder filter not available ("+(err&&err.message||err)+"): using the simple filter."); }
+    rebuildAll(); arpSync(); initMidi(); btn.classList.add("on"); btn.textContent="Audio on";
+  }catch(err){ try{ ctx&&ctx.close(); }catch(_){} ctx=null; btn.classList.remove("on"); btn.textContent="Start audio"; msg("Unable to start the audio: "+(err&&err.message||err)); }
   starting=false; };
-addEventListener("error",ev=>{ try{ msg("Errore: "+ev.message); }catch(_){} });
+addEventListener("error",ev=>{ try{ msg("Error: "+ev.message); }catch(_){} });
 addEventListener("unhandledrejection",ev=>{ try{ msg("Errore: "+(ev.reason&&ev.reason.message||ev.reason)); }catch(_){} });
 /* niente selezione di testo, lente o menu contestuale quando si tocca la tastiera, le rotelle o le manopole */
 document.addEventListener("selectstart",e=>{ const el=e.target.nodeType===1?e.target:e.target.parentElement; if(el&&el.closest&&el.closest("#panelView,#boardView")&&!el.closest("select,input,textarea")) e.preventDefault(); });

@@ -1,177 +1,184 @@
 # S33 - Nostos One
 
-Sintetizzatore **modulare polifonico** che gira nel browser, pensato per essere suonato con una **tastiera MIDI**.
-Ha due facce sullo stesso motore:
+A **polyphonic modular synthesizer** that runs in the browser, made to be played from a **MIDI keyboard**.
+It has two faces on the same engine:
 
-- la **Lavagna**: i moduli (oscillatori, filtri, inviluppi, effetti…) si trascinano, si collegano con i cavi e si ascoltano subito;
-- il **Pannello**: un frontale pulito con manopole, drawbar, arpeggiatore e monitor, che agisce sugli stessi moduli.
+- the **Board**: modules (oscillators, filters, envelopes, effects…) can be dragged around, connected with cables and heard immediately;
+- the **Panel**: a clean front panel with knobs, drawbars, arpeggiator and monitors, acting on the very same modules.
 
-È una **PWA** in un solo file HTML, senza dipendenze né build: si apre, si installa come app e funziona anche senza rete.
+It is a **PWA** in a single HTML file, with no dependencies or build step: open it, install it as an app, and it keeps working offline.
 
-> Progetto personale della famiglia S33, nato come esperimento didattico e di divertimento. Il nome viene da *nostos*, il "ritorno a casa" da cui nasce la parola nostalgia: propone suoni del passato. Nessuna garanzia: vedi [Limiti noti](#limiti-noti).
+> A personal project of the S33 family, born as an experiment in learning and having fun. The name comes from *nostos*, the "return home" that gives us the word nostalgia: it offers sounds from the past. No warranty: see [Known limits](#known-limits).
 
 ---
 
-## Avvio rapido
+## Quick start
 
-### Provarlo in locale
+### Try it locally
 
-I service worker e il MIDI richiedono `http://localhost` o `https://`, quindi non aprire il file con doppio clic: servi la cartella.
+Service workers and MIDI require `http://localhost` or `https://`, so don't open the file by double-clicking: serve the folder.
 
 ```bash
 cd s33-nostos-one
 python3 -m http.server 8000
-# poi apri http://localhost:8000 in Chrome
+# then open http://localhost:8000 in Chrome
 ```
 
-### Pubblicarlo su GitHub Pages
+### Publish on GitHub Pages
 
-1. Crea un repository e carica **il contenuto** di questa cartella (`index.html`, `sw.js`, `manifest.webmanifest`, `icons/`, `README.md`).
+1. Create a repository and upload **the contents** of this folder (`index.html`, `sw.js`, `manifest.webmanifest`, `icons/`, `README.md`).
 2. *Settings → Pages → Deploy from a branch →* `main` / `(root)`.
-3. Apri l'indirizzo `https://<utente>.github.io/<repository>/`.
+3. Open `https://<user>.github.io/<repository>/`.
 
-I percorsi sono tutti relativi, quindi funziona anche in una sottocartella.
+All paths are relative, so it also works from a subfolder. Note that GitHub is case-sensitive: the folder must be called `icons`, not `Icons`.
 
-### Installarlo come app
+### Install as an app
 
-In **Chrome** (consigliato) apri l'indirizzo e scegli *Installa S33 - Nostos One* dalla barra degli indirizzi (o dal menu ⋮). Sul Mac compare come applicazione a sé, con la sua icona.
+In **Chrome** (recommended) open the address and choose *Install S33 - Nostos One* from the address bar (or the ⋮ menu). On the Mac it appears as a standalone application with its own icon.
 
-### Suonare
+### Playing
 
-1. Collega la tastiera MIDI **prima** di aprire la pagina (o ricarica dopo averla collegata).
-2. Premi **Avvia audio** (il browser richiede un gesto dell'utente) e concedi l'accesso MIDI.
-3. Scegli un preset dal menu e suona.
+1. Connect the MIDI keyboard **before** opening the page (or reload after connecting it).
+2. Press **Start audio** (the browser requires a user gesture) and allow MIDI access.
+3. Pick a preset from the menu and play.
 
-Senza tastiera MIDI puoi usare la tastiera sullo schermo oppure i tasti del computer: `A W S E D F T G Y H U J K` corrispondono a una ottava da Do centrale.
+Without a MIDI keyboard you can use the on-screen keyboard or the computer keys: `A W S E D F T G Y H U J K` map to one octave from middle C.
 
 | | Chrome / Edge | Safari | Firefox |
 |---|---|---|---|
-| Audio e interfaccia | sì | sì | sì |
-| Ingresso MIDI (Web MIDI) | **sì** | no | limitato |
+| Audio and interface | yes | yes | yes |
+| MIDI input (Web MIDI) | **yes** | no | limited |
 
 ---
 
-## Cosa c'è dentro
+## What's inside
 
-### Moduli
+### Modules
 
-Tastiera (nota e velocity), Oscillatore (sinusoide, triangolo, sega, quadra; ottava, semitono, fine), **Osc sync** (hard sync con rapporto modulabile), **FM** (rapporto e indice, con ingresso per modulare l'indice), Rumore, LFO, Mixer a 3 ingressi, **Filtro a scala** (24 dB/ott., risonante, con saturazione), **Passa-alto**, ADSR, VCA, Rotella mod, Delay (anche **sincronizzato al tempo**), Riverbero, Chorus, Uscita.
+Keyboard (note and velocity), Oscillator (sine, triangle, saw, square; octave, semitone, fine), **Sync Osc** (hard sync with modulatable ratio), **FM** (ratio and index, with an input to modulate the index), Noise, LFO, 3-input Mixer, **Ladder Filter** (24 dB/oct, resonant, with saturation), **High-pass**, ADSR, VCA, Mod Wheel, Delay (also **tempo-synced**), Reverb, Chorus, Output.
 
-I moduli a sinistra della linea tratteggiata sono **per voce** (copiati 8 volte); quelli a destra sono **master** (una sola volta). La posizione del modulo decide a quale zona appartiene.
+Modules to the left of the dashed line are **per voice** (copied up to 8 times); those on the right are **master** (once). A module's position decides which zone it belongs to.
 
-### Polifonia
+### Polyphony
 
-1, 4 o 8 voci con assegnazione e "furto" della voce più vecchia, glide, pitch bend e rotella mod (CC 1).
+1, 4 or 8 voices with voice allocation and oldest-voice stealing, glide, pitch bend and mod wheel (CC 1).
 
-### Lavagna
+### Board
 
-- trascina da un cerchio all'altro per collegare; clic su un modulo o su un cavo per modificarlo;
-- doppio clic su un cavo selezionato per eliminarlo;
-- i cavi con una quantità (per esempio inviluppo → filtro) hanno la loro manopola nel pannello del modulo.
+- drag from one circle to another to connect; click a module or a cable to edit it;
+- double-click a selected cable to delete it;
+- cables with an amount (for instance envelope → filter) get their own knob in the module's panel.
 
-### Pannello
+### Panel
 
-Il pannello si adatta al preset con un **modello** dedicato (Minimoog, FM, Organo, Percussioni, Pad, Prophet, Farfisa, Hammond, Rhodes, Pianoforte) oppure in modalità **Automatica**, che mostra le manopole di tutti i moduli. Comprende:
+The panel adapts to the preset with a dedicated **model** (Minimoog, FM, Organ, Percussion, Pad, Prophet, Farfisa, Hammond, Rhodes, Piano) or in **Automatic** mode, which shows the knobs of every module. It includes:
 
-- **Arpeggiatore** con modi su / giù / su-giù / casuale / ordine, divisioni anche in terzine, 1–4 ottave, gate, swing, latch e tempo in BPM;
-- **Dinamica del tocco** da velocity MIDI (vedi sotto);
-- monitor di **preset**, **oscilloscopio** e **spettro**, ridimensionabili;
-- tastiera sullo schermo con rotelle pitch e mod, e display dell'ottava.
+- an **Arpeggiator** with up / down / up-down / random / order modes, triplet divisions, 1–4 octaves, gate, swing, latch and BPM tempo;
+- **Touch Dynamics** from MIDI velocity (see below);
+- a **preset** monitor, **oscilloscope** and **spectrum**;
+- an on-screen keyboard with pitch and mod wheels, and an octave display.
 
-### Dinamica del tocco
+### Touch Dynamics
 
-La velocity MIDI agisce su **volume** e **brillantezza** (apre filtri e indice FM). Si può:
+MIDI velocity drives **volume** and **brightness** (it opens filters and FM index). You can:
 
-- attivare e disattivare per tutto il synth (**DINAMICA**);
-- escludere per il singolo preset (**QUESTO PRESET**): organi e string machine partono già senza, come gli strumenti originali;
-- regolare **curva** (morbida / normale / dura), **volume** e **brillantezza**.
+- switch it on and off for the whole synth (**DYNAMICS**);
+- exclude it for a single preset (**THIS PRESET**): organs and string machines start without it, like the original instruments;
+- set the **curve** (soft / normal / hard), **volume** and **brightness**.
 
-Sulla Lavagna il modulo Tastiera ha anche un'uscita `velocity` per collegarla a qualunque parametro.
+On the Board the Keyboard module also has a `velocity` output to wire to any parameter.
 
-### Vesti grafiche
+### Skins
 
-Dal menu **Veste**: Automatica (segue chiaro/scuro del sistema), Moog avorio, Prophet nero, Grafite, Neon, Blueprint. Le manopole hanno un aspetto in rilievo che cambia con la veste.
+From the **Skin** menu: Automatic (follows the system light/dark setting), Moog Ivory, Prophet Black, Graphite, Neon, Blueprint. The raised look of the knobs changes with the skin.
 
-### Preset (46)
+### Presets (46)
 
-| Gruppo | Preset |
+Presets are grouped by instrument family. Inside each group they are ordered from the most "natural" to the most unusual.
+
+| Group | Presets |
 |---|---|
-| **Iconici** | Patch di partenza, Basso Moog, Pad caldo, Archi, Supersaw, Aria, Abisso, Ottoni, Lead solista, Pizzicato, Campana FM, Organo, Soffio e colpo, **Shine On - P III**, **Shine On - P I**, Arpeggio notturno, Cassa sintetica, Rullante, Hi-hat chiuso, Hi-hat aperto, Piatto, Piano elettrico FM |
-| **Prophet-5** | One of My Turns (intro), sync lead (Run Like Hell) |
-| **String machine** | ARP String Ensemble – violini, celli e viole |
-| **Organi** | Hammond C3 888000000 (Leslie lento / veloce), Farfisa Compact (Flute-Oboe-Flute 4′, Booster) |
-| **Piani elettrici** | Fender Rhodes Mark I, Suitcase (tremolo) |
-| **Arpeggiatore** | Pluck secco, Staccato digitale, Basso sequencer, Flauto morbido, Velluto, Kalimba, Campanelle FM, Metallo FM, Acciaio (sync) |
-| **Pianoforte** | Piano a coda, verticale, morbido (feltro), brillante (pop), con pedale (ambiente) |
+| **Basics** | Init Patch |
+| **Pianos** | Grand Piano, Upright Piano, Felt Piano, Bright Pop Piano, Pedal Piano (Ambient) |
+| **Electric Pianos** | Fender Rhodes – Mark I, Fender Rhodes – Suitcase (Tremolo), FM Electric Piano |
+| **Organs** | Drawbar Organ, Hammond C3 – 888000000 (Slow Leslie), Hammond C3 – 888000000 (Fast Leslie), Farfisa Compact – Flute, Oboe, Flute 4′, Farfisa Compact – Booster |
+| **Strings & Pads** | Strings 70s, ARP String Ensemble – Violins, ARP String Ensemble – Cellos & Violas, Warm Pad, Air Pad, Abyss Pad, Supersaw |
+| **Leads & Brass** | Solo Lead, Brass, **Shine On - P I**, **Shine On - P III**, Prophet-5 – One of My Turns (intro), Prophet-5 – Sync Lead (Run Like Hell) |
+| **Bass** | Moog Bass |
+| **Plucks & Bells** | Pizzicato, FM Bell |
+| **Arpeggiator** | Arp – Dry Pluck, Digital Staccato, Sequencer Bass, Soft Flute, Velvet, Kalimba, FM Bells, FM Metal, Steel (Sync), Nocturne |
+| **Drums & Percussion** | Synth Kick, Snare, Hi-hat – Closed, Hi-hat – Open, Cymbal, Noise Burst |
 
-I preset che richiamano brani o strumenti reali sono **ricostruzioni a orecchio e da descrizioni trovate online**, non copie: valgono come punto di partenza da rifinire (vedi [Fonti](#fonti-dei-preset)).
+Presets that evoke real tracks or instruments are **reconstructions made by ear and from descriptions found online**, not copies: treat them as a starting point to refine (see [Preset sources](#preset-sources)).
 
-### Salvare, esportare, importare
+Your own presets appear in a **My Presets** group at the end of the menu.
 
-- **Salva come…** conserva il tuo preset nel browser;
-- **Esporta** / **Esporta miei** scarica uno o più preset in un file `.json`;
-- **Importa** carica un file: viene controllato e normalizzato (moduli e porte sconosciuti, valori fuori scala, anelli e cavi non validi vengono rifiutati o riportati nei limiti).
+### Save, export, import
 
-Il file contiene solo dati, mai codice.
+- **Save as…** keeps your preset in the browser;
+- **Export** / **Export mine** downloads one or more presets as a `.json` file;
+- **Import** loads a file, which is checked and normalized (unknown modules and ports, out-of-range values, loops and invalid cables are rejected or clamped).
+
+The file contains data only, never code. Files saved by earlier (Italian-language) versions still import correctly.
 
 ---
 
-## Struttura della cartella
+## Folder structure
 
 ```
-index.html               l'intera applicazione (HTML, CSS e JavaScript)
-manifest.webmanifest     nome, icone e colori dell'app
-sw.js                    service worker: funzionamento offline
-icons/                   icone PNG (192, 512, maskable, Apple touch, favicon); icon.svg è solo il sorgente e non serve per far funzionare l'app
-README.md                questo file
+index.html               the whole application (HTML, CSS and JavaScript)
+manifest.webmanifest     app name, icons and colors
+sw.js                    service worker: offline operation
+icons/                   PNG icons (192, 512, maskable, Apple touch, favicon); icon.svg is only the source and is not needed for the app to run
+README.md                this file
 ```
 
-### Aggiornare l'app
+### Updating the app
 
-Il service worker risponde dalla cache e si aggiorna in silenzio quando c'è rete: dopo aver pubblicato una modifica, la versione nuova compare **alla seconda apertura**. Per forzare il rinnovo cambia `VERSIONE` in `sw.js`.
+The service worker answers from the cache and updates silently when online: after publishing a change, the new version appears **the second time you open it**. To force a refresh, change `VERSIONE` in `sw.js`.
 
-### Identificativo dell'app
+### App identifier
 
-Chrome identifica una PWA dal campo `id` del manifest, che viene risolto **rispetto all'origine del sito** (non alla cartella). Se più app stanno sotto lo stesso `utente.github.io`, ognuna deve avere un `id` diverso (qui `s33-nostos-one`); con `"id": "./"` tutte risulterebbero la stessa app e Chrome non proporrebbe "Installa", ma "Apri nell'app".
+Chrome identifies a PWA by the manifest `id` field, resolved **against the site's origin** (not the folder). If several apps live under the same `user.github.io`, each must have a different `id` (here `s33-nostos-one`); with `"id": "./"` they would all count as the same app and Chrome would offer "Open in app" instead of "Install".
 
-### Dati salvati nel browser (`localStorage`)
+### Data saved in the browser (`localStorage`)
 
-`synth-lavagna-v3` (patch corrente), `synth-user-presets`, `synth-mon-w` (larghezza dei monitor), `synth-skin` (veste), `synth-vel` (dinamica).
-
----
-
-## Limiti noti
-
-- **Non è stato valutato all'ascolto da chi l'ha scritto**: la struttura, l'importazione, l'offline e il comportamento dell'audio sono stati verificati con test automatici, ma i suoni vanno giudicati e ritoccati a orecchio.
-- Niente phaser, spring reverb e Leslie veri (il Leslie dei preset Hammond è approssimato con tremolo e chorus); le string machine non hanno il phaser dell'originale.
-- Il pianoforte e il Rhodes sono **sintesi FM**, non campioni: suonano "da piano sintetico".
-- Ingressi MIDI gestiti: note con velocity, pitch bend, CC 1. **Non** gestiti: pedale di sustain, aftertouch, program change.
-- Il mixer ha 3 ingressi (se ne servono di più si concatenano due mixer).
-- Il filtro a scala usa un AudioWorklet; se non è disponibile il browser ripiega su un filtro più semplice.
-- Il MIDI funziona solo in Chrome e in Edge e solo in HTTPS o su `localhost`.
-
-## Idee per il futuro
-
-- pacchetto desktop con **Electron** o **Tauri**;
-- pedale di sustain e aftertouch;
-- altri moduli (phaser, waveshaper, sequencer a passi).
+`synth-lavagna-v3` (current patch), `synth-user-presets`, `synth-mon-w` (monitor width), `synth-skin` (skin), `synth-vel` (dynamics).
 
 ---
 
-## Fonti dei preset
+## Known limits
 
-Le impostazioni dei preset ispirati a strumenti reali derivano da descrizioni pubbliche, non da dati ufficiali:
+- **It has not been judged by ear by its author**: structure, import, offline mode and audio behavior were checked with automated tests, but the sounds need to be judged and tweaked by ear.
+- No real phaser, spring reverb or Leslie (the Hammond presets approximate the Leslie with tremolo and chorus); the string machines lack the original's phaser.
+- The pianos and the Rhodes are **FM synthesis**, not samples: they sound like synthetic pianos.
+- MIDI inputs handled: notes with velocity, pitch bend, CC 1. **Not** handled: sustain pedal, aftertouch, program change.
+- The mixer has 3 inputs (chain two mixers if you need more).
+- The ladder filter uses an AudioWorklet; if it is unavailable the browser falls back to a simpler filter.
+- MIDI works only in Chrome and Edge, and only over HTTPS or on `localhost`.
+
+## Ideas for the future
+
+- desktop package with **Electron** or **Tauri**;
+- sustain pedal and aftertouch;
+- more modules (phaser, waveshaper, step sequencer).
+
+---
+
+## Preset sources
+
+The settings of presets inspired by real instruments come from public descriptions, not official data:
 
 - [Pink Floyd – One of My Turns, intro (matrixsynth)](https://www.matrixsynth.com/2008/09/pink-floyd-one-of-my-turns-intro.html)
-- [Sound On Sound – ricreare il suono delle vecchie string machine](https://www.soundonsound.com/sound-advice/q-how-do-re-create-sound-those-old-string-synths)
+- [Sound On Sound – re-creating the sound of old string synths](https://www.soundonsound.com/sound-advice/q-how-do-re-create-sound-those-old-string-synths)
 - [Farfisa Compact (combo-organ.com)](https://www.combo-organ.com/Farfisa/Compact/)
 - [Hammond organ (Wikipedia)](https://en.wikipedia.org/wiki/Hammond_organ)
-- [I sintetizzatori dei Pink Floyd (gearnews)](https://gearnews.com/synths-of-pink-floyd-synth/)
+- [The synths of Pink Floyd (gearnews)](https://gearnews.com/synths-of-pink-floyd-synth/)
 
-Il carattere del titolo è **Oswald** (SIL Open Font License), incorporato nel file.
+The title typeface is **Oswald** (SIL Open Font License), embedded in the file.
 
-Moog, Minimoog, Sequential, Prophet-5, ARP, Solina, Hammond, Farfisa, Fender, Rhodes e gli altri nomi citati appartengono ai rispettivi proprietari e sono usati solo per indicare il carattere sonoro a cui un preset si ispira. Nessun legame con i marchi citati.
+Moog, Minimoog, Sequential, Prophet-5, ARP, Solina, Hammond, Farfisa, Fender, Rhodes and the other names mentioned belong to their respective owners and are used only to indicate the sonic character a preset is inspired by. No affiliation with the brands mentioned.
 
-## Uso
+## Use
 
-Progetto a uso personale. Se lo pubblichi, scegli tu la licenza da aggiungere.
+Personal-use project. If you publish it, choose the license you want to add.

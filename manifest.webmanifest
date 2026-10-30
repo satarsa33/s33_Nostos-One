@@ -1,8 +1,8 @@
 {
   "name": "S33 - Nostos One",
   "short_name": "Nostos One",
-  "description": "Sintetizzatore modulare polifonico a lavagna, da suonare con una tastiera MIDI.",
-  "lang": "it",
+  "description": "Polyphonic modular synthesizer with a patch board, played from a MIDI keyboard.",
+  "lang": "en",
   "start_url": "./index.html",
   "scope": "./",
   "id": "s33-nostos-one",
