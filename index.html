@@ -1231,10 +1231,18 @@ PALETTE.forEach(t=>{ const b=document.createElement("button"); b.textContent=DEF
     patch.modules.push(m); sel=m; selCab=null; commit(); }; pal.appendChild(b); });
 nv.addEventListener("change",()=>{ if(ctx) rebuildAll(); render(); if(view==="panel") renderPanel(); });
 document.getElementById("reset").onclick=()=>{ patch=defaultPatch(); sel=selCab=null; loading=true; commit(); loading=false; patch.mod=false; updateMon(); };
-document.getElementById("go").onclick=async e=>{ if(ctx) return; ctx=new AudioContext({latencyHint:"interactive"}); ctx.an=ctx.createAnalyser(); ctx.an.fftSize=2048; ctx.an.smoothingTimeConstant=0.8;
-  try{ await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET_SRC],{type:"text/javascript"}))); ctx.hasLadder=true; }
-  catch(err){ ctx.hasLadder=false; msg("Filtro a scala non disponibile in questo browser: uso il filtro semplice."); }
-  rebuildAll(); arpSync(); initMidi(); e.target.classList.add("on"); e.target.textContent="Audio attivo"; };
+let starting=false;
+document.getElementById("go").onclick=async e=>{ if(ctx||starting) return; starting=true; const btn=e.currentTarget||e.target; btn.textContent="Avvio…";
+  try{
+    ctx=new AudioContext({latencyHint:"interactive"}); try{ ctx.resume(); }catch(_){}
+    ctx.an=ctx.createAnalyser(); ctx.an.fftSize=2048; ctx.an.smoothingTimeConstant=0.8;
+    try{ await Promise.race([ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET_SRC],{type:"text/javascript"}))), new Promise((_,no)=>setTimeout(()=>no(new Error("tempo scaduto")),4000))]); ctx.hasLadder=true; }
+    catch(err){ ctx.hasLadder=false; msg("Filtro a scala non disponibile ("+(err&&err.message||err)+"): uso il filtro semplice."); }
+    rebuildAll(); arpSync(); initMidi(); btn.classList.add("on"); btn.textContent="Audio attivo";
+  }catch(err){ try{ ctx&&ctx.close(); }catch(_){} ctx=null; btn.classList.remove("on"); btn.textContent="Avvia audio"; msg("Impossibile avviare l'audio: "+(err&&err.message||err)); }
+  starting=false; };
+addEventListener("error",ev=>{ try{ msg("Errore: "+ev.message); }catch(_){} });
+addEventListener("unhandledrejection",ev=>{ try{ msg("Errore: "+(ev.reason&&ev.reason.message||ev.reason)); }catch(_){} });
 /* niente selezione di testo, lente o menu contestuale quando si tocca la tastiera, le rotelle o le manopole */
 document.addEventListener("selectstart",e=>{ const el=e.target.nodeType===1?e.target:e.target.parentElement; if(el&&el.closest&&el.closest("#panelView,#boardView")&&!el.closest("select,input,textarea")) e.preventDefault(); });
 document.addEventListener("contextmenu",e=>{ if(e.target.closest&&e.target.closest(".key,.wheel,.kn svg,.spl,#mon canvas")) e.preventDefault(); });
