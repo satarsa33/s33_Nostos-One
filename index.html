@@ -251,14 +251,14 @@ const DEF={
   delay:{label:"Delay",in:["in"],out:["out"],params:[P("time",0.02,1.2,0.01," s",1),P("fb",0,0.9,0.01,""),P("mix",0,1,0.01,""),{k:"sync",opts:["free","1/4","1/8","1/8.","1/8T","1/16","1/16."]}],init:{time:0.35,fb:0.4,mix:0.3,sync:"free"}},
   reverb:{label:"Reverb",in:["in"],out:["out"],params:[P("size",0.5,6,0.1," s",1),P("mix",0,1,0.01,"")],init:{size:2.5,mix:0.3}},
   modwheel:{label:"Mod Wheel",in:[],out:["out"],params:[],init:{}},
-  drive:{label:"Drive",in:["in"],out:["out"],params:[P("drive",0,1,0.01,""),P("tone",1500,16000,10," Hz",1),P("mix",0,1,0.01,"")],init:{drive:0.3,tone:9000,mix:1}},
+  drive:{label:"Drive",in:["in"],out:["out"],params:[P("trim",-24,12,0.5," dB"),P("drive",0,1,0.01,""),P("tone",1500,16000,10," Hz",1),P("mix",0,1,0.01,"")],init:{trim:0,drive:0.3,tone:9000,mix:1}},
   chorus:{label:"Chorus",in:["in"],out:["out"],params:[P("rate",0.1,5,0.01," Hz",1),P("depth",0,1,0.01,""),P("mix",0,1,0.01,"")],init:{rate:0.8,depth:0.5,mix:0.5}},
   output:{label:"Output",in:["in"],out:[],params:[P("level",0,1,0.01,"")],init:{level:0.25}}
 };
 const PALETTE=["osc","syncosc","fm","noise","lfo","mixer","ladder","hpf","adsr","vca","keyin","modwheel","delay","reverb","chorus","drive","output"];
 const MASTER_ONLY=["output","delay","reverb","chorus","drive"];
 const FAM={keyin:"src",osc:"src",syncosc:"src",fm:"src",noise:"src",lfo:"mod",adsr:"mod",ladder:"proc",hpf:"proc",vca:"proc",mixer:"proc",delay:"fx",reverb:"fx",chorus:"fx",drive:"fx",modwheel:"mod",output:"out"};
-const LBL={cutoff:"cutoff",res:"resonance",a:"attack",d:"decay",s:"sustain",r:"release",rate:"rate",time:"time",fb:"feedback",mix:"mix",size:"size",level:"level",ratio:"ratio",index:"index",detune:"detune",oct:"octave",l1:"level 1",l2:"level 2",l3:"level 3",wave:"wave",amount:"amount",depth:"depth",glide:"glide",sync:"sync",drive:"drive",tone:"tone",semi:"semitones"}; // posizionati di default a destra, ma si possono spostare
+const LBL={cutoff:"cutoff",res:"resonance",a:"attack",d:"decay",s:"sustain",r:"release",rate:"rate",time:"time",fb:"feedback",mix:"mix",size:"size",level:"level",ratio:"ratio",index:"index",detune:"detune",oct:"octave",l1:"level 1",l2:"level 2",l3:"level 3",wave:"wave",amount:"amount",depth:"depth",glide:"glide",sync:"sync",drive:"drive",tone:"tone",trim:"input",semi:"semitones"}; // posizionati di default a destra, ma si possono spostare
 
 /* ---------- Modello patch ---------- */
 const KEY="synth-lavagna-v3"; const BW=1500, BH=620;
@@ -339,8 +339,8 @@ const TYPES={
     tone.type="lowpass"; tone.Q.value=0.5;
     inp.connect(dry); dry.connect(out); inp.connect(pre); pre.connect(ws); ws.connect(post); post.connect(tone); tone.connect(wet); wet.connect(out);
     let first=true;
-    const set=p=>{ const k=1+p.drive*11, mk=0.3/Math.tanh(k*0.3), t=first?0:ctx.currentTime, sm=(a,v)=>{ if(first) a.value=v; else a.setTargetAtTime(v,t,0.02); };
-      sm(pre.gain,k/4); sm(post.gain,mk); sm(tone.frequency,p.tone); sm(wet.gain,p.mix); sm(dry.gain,1-p.mix); first=false; }; set(p);
+    const set=p=>{ const T=Math.pow(10,(+p.trim||0)/20), k=1+p.drive*11, mk=0.3/Math.tanh(k*0.3)/T, t=first?0:ctx.currentTime, sm=(a,v)=>{ if(first) a.value=v; else a.setTargetAtTime(v,t,0.02); };
+      sm(pre.gain,k*T/4); sm(post.gain,mk); sm(tone.frequency,p.tone); sm(wet.gain,p.mix); sm(dry.gain,1-p.mix); first=false; }; set(p);
     const all=[inp,dry,pre,ws,post,tone,wet,out];
     return {ports:{in:inp,out:out},update:set,stop(){all.forEach(n=>n.disconnect());}}; },
   noise(ctx){ const b=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate), d=b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
@@ -620,8 +620,8 @@ const PRESETS=[
  {name:"Init Patch",group:"Basics",panel:"mini",desc:"Two slightly detuned waves in the mixer, then filter and delay.",make:defaultPatch},
  {name:"Moog Bass",group:"Bass",panel:"mini",desc:"Saw plus square one octave down, with a filter that closes fast.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth"}],["osc2","osc",1,1,{wave:"square",oct:-1}],["mix1","mixer",2,0,{l1:0.6,l2:0.6,l3:0}],
-   ["flt1","ladder",3,0,{cutoff:300,res:0.45}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.004,d:0.28,s:0.1,r:0.15}],["env2","adsr",4,1,{a:0.004,d:0.2,s:0.85,r:0.12}],["out","output",100,0,{level:0.3}]],
-  ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3600","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>out.in"])},
+   ["flt1","ladder",3,0,{cutoff:300,res:0.45}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.004,d:0.28,s:0.1,r:0.15}],["env2","adsr",4,1,{a:0.004,d:0.2,s:0.85,r:0.12}],["drive1","drive",100,1,{trim:-4,drive:0.35,tone:7000,mix:1}],["out","output",100,0,{level:0.3}]],
+  ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3600","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>drive1.in","drive1.out>out.in"])},
  {name:"Warm Pad",group:"Strings & Pads",panel:"pad",desc:"Three detuned saws, slow attack, filter moved by a slow LFO, delay and a wide reverb.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",detune:-12}],["osc2","osc",1,1,{wave:"sawtooth"}],["osc3","osc",1,2,{wave:"sawtooth",detune:12}],
    ["mix1","mixer",2,0,{l1:0.4,l2:0.4,l3:0.4}],["lfo1","lfo",2,2,{rate:0.35}],["flt1","ladder",3,0,{cutoff:1400,res:0.1}],["amp1","vca",4,0],
@@ -656,14 +656,14 @@ const PRESETS=[
  {name:"Brass",group:"Leads & Brass",panel:"mini",desc:"Two saws, soft attack; the filter opens after the attack.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",detune:-8}],["osc2","osc",1,1,{wave:"sawtooth",detune:8}],["mix1","mixer",2,0,{l1:0.5,l2:0.5,l3:0}],
    ["flt1","ladder",3,0,{cutoff:600,res:0.2}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.09,d:0.35,s:0.65,r:0.2}],["env2","adsr",4,1,{a:0.06,d:0.2,s:0.85,r:0.18}],
-   ["rev1","reverb",100,0,{size:1.8,mix:0.2}],["out","output",101,0,{level:0.28}]],
-  ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3000","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
+   ["drive1","drive",100,1,{trim:-7,drive:0.25,tone:8000,mix:1}],["rev1","reverb",100,0,{size:1.8,mix:0.2}],["out","output",101,0,{level:0.28}]],
+  ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3000","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>drive1.in","drive1.out>rev1.in","rev1.out>out.in"])},
  {name:"Solo Lead",group:"Leads & Brass",panel:"mini",desc:"Square plus saw, light LFO vibrato, echo delay.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"square"}],["osc2","osc",1,1,{wave:"sawtooth",detune:7}],["mix1","mixer",2,0,{l1:0.4,l2:0.5,l3:0}],["lfo1","lfo",2,2,{rate:5.5}],
    ["flt1","ladder",3,0,{cutoff:2200,res:0.3}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.005,d:0.45,s:0.55,r:0.25}],["env2","adsr",4,1,{a:0.005,d:0.3,s:0.8,r:0.22}],
-   ["dly1","delay",100,0,{time:0.38,fb:0.38,mix:0.28}],["rev1","reverb",101,0,{size:1.5,mix:0.18}],["out","output",102,0,{level:0.25}]],
+   ["drive1","drive",100,1,{trim:-9.5,drive:0.35,tone:8000,mix:1}],["dly1","delay",100,0,{time:0.38,fb:0.38,mix:0.28}],["rev1","reverb",101,0,{size:1.5,mix:0.18}],["out","output",102,0,{level:0.25}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","lfo1.out>osc1.freq:4","lfo1.out>osc2.freq:4","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in",
-   "env1.out>flt1.cutoffMod:2000","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
+   "env1.out>flt1.cutoffMod:2000","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>drive1.in","drive1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
  {name:"Pizzicato",group:"Plucks & Bells",panel:"mini",desc:"The note decays to zero even while the key is held: a synthetic pizzicato.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth"}],["osc2","osc",1,1,{wave:"triangle",detune:5}],["mix1","mixer",2,0,{l1:0.6,l2:0.3,l3:0}],
    ["flt1","ladder",3,0,{cutoff:500,res:0.35}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.004,d:0.22,s:0,r:0.2}],["env2","adsr",4,1,{a:0.004,d:0.3,s:0,r:0.25}],
@@ -685,16 +685,16 @@ const PRESETS=[
  {name:"Shine On - P III",group:"Leads & Brass",panel:"mini",desc:"The Part III solo, a monophonic “brass”: a saw with a slightly detuned second saw, the filter opens slowly on every note, light portamento, a touch of delay and reverb. Loads with 1 voice.",voices:1,make:()=>mk(
   [["kbd","keyin",0,0,{glide:0.05}],["osc1","osc",1,0,{wave:"sawtooth"}],["osc2","osc",1,1,{wave:"sawtooth",detune:3}],["mix1","mixer",2,0,{l1:0.8,l2:0.25,l3:0}],
    ["flt1","ladder",3,0,{cutoff:420,res:0.15}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.6,d:0.4,s:0.9,r:0.35}],["env2","adsr",4,1,{a:0.03,d:0.2,s:1,r:0.3}],
-   ["dly1","delay",100,0,{time:0.32,fb:0.18,mix:0.1}],["rev1","reverb",101,0,{size:2.8,mix:0.3}],["out","output",102,0,{level:0.3}]],
+   ["drive1","drive",100,1,{trim:-1,drive:0.3,tone:7500,mix:1}],["dly1","delay",100,0,{time:0.32,fb:0.18,mix:0.1}],["rev1","reverb",101,0,{size:2.8,mix:0.3}],["out","output",102,0,{level:0.3}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3200","flt1.out>amp1.in","env2.out>amp1.gain",
-   "amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
+   "amp1.out>drive1.in","drive1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
  {name:"Shine On - P I",group:"Leads & Brass",panel:"mini",desc:"A soft, horn-like tone: triangle wave with a hint of saw for the “core”, light portamento, vibrato scaled by the MOD wheel, a breath of noise, discreet echo and a wide reverb. Loads with 1 voice.",voices:1,make:()=>mk(
   [["kbd","keyin",0,0,{glide:0.05}],["osc1","osc",1,0,{wave:"triangle"}],["osc2","osc",1,1,{wave:"sawtooth",detune:2}],["noise1","noise",1,2],["lfo1","lfo",2,2,{rate:4.6}],["wheel1","modwheel",0,1],["vib1","vca",2,1],
    ["mix1","mixer",2,0,{l1:0.9,l2:0.18,l3:0.05}],["flt1","ladder",3,0,{cutoff:900,res:0.12}],["amp1","vca",4,0],
    ["env1","adsr",3,1,{a:0.12,d:0.5,s:0.6,r:0.4}],["env2","adsr",4,1,{a:0.07,d:0.3,s:0.9,r:0.4}],
-   ["dly1","delay",100,0,{time:0.4,fb:0.25,mix:0.12}],["rev1","reverb",101,0,{size:3.5,mix:0.35}],["out","output",102,0,{level:0.3}]],
+   ["drive1","drive",100,1,{trim:-2,drive:0.15,tone:7000,mix:1}],["dly1","delay",100,0,{time:0.4,fb:0.25,mix:0.12}],["rev1","reverb",101,0,{size:3.5,mix:0.35}],["out","output",102,0,{level:0.3}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","lfo1.out>vib1.in","wheel1.out>vib1.gain","vib1.out>osc1.freq:3","vib1.out>osc2.freq:3","osc1.out>mix1.in1","osc2.out>mix1.in2","noise1.out>mix1.in3",
-   "mix1.out>flt1.in","env1.out>flt1.cutoffMod:1800","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
+   "mix1.out>flt1.in","env1.out>flt1.cutoffMod:1800","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>drive1.in","drive1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
  {name:"Arp – Nocturne",group:"Arpeggiator",panel:"mini",desc:"Up-down arpeggio over two octaves: hold a chord and the synth plays it as single notes. The delay is synced to a dotted eighth: change the arpeggio tempo and the echo follows.",arp:{on:true,mode:"updown",div:"1/16",bpm:104,oct:2,gate:0.55,swing:0.1},make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth"}],["osc2","osc",1,1,{wave:"square",detune:-6}],["mix1","mixer",2,0,{l1:0.5,l2:0.4,l3:0}],
    ["flt1","ladder",3,0,{cutoff:900,res:0.3}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.004,d:0.25,s:0,r:0.2}],["env2","adsr",4,1,{a:0.004,d:0.22,s:0,r:0.18}],
@@ -702,8 +702,8 @@ const PRESETS=[
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3500","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
  {name:"Synth Kick",group:"Drums & Percussion",panel:"perc",desc:"A sine whose pitch drops within a few milliseconds, plus a little noise for the click. Every key plays the same hit.",make:()=>mk(
   [["osc1","osc",1,0,{wave:"sine"}],["noise1","noise",1,1],["mix1","mixer",2,0,{l1:1,l2:0.1,l3:0}],["flt1","ladder",3,0,{cutoff:3500,res:0}],["amp1","vca",4,0],
-   ["env1","adsr",2,1,{a:0.001,d:0.1,s:0,r:0.05}],["env2","adsr",4,1,{a:0.001,d:0.32,s:0,r:0.1}],["rev1","reverb",100,0,{size:0.6,mix:0.08}],["out","output",101,0,{level:0.45}]],
-  ["env1.out>osc1.freq:180","osc1.out>mix1.in1","noise1.out>mix1.in2","mix1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
+   ["env1","adsr",2,1,{a:0.001,d:0.1,s:0,r:0.05}],["env2","adsr",4,1,{a:0.001,d:0.32,s:0,r:0.1}],["drive1","drive",100,1,{trim:-3,drive:0.3,tone:9000,mix:1}],["rev1","reverb",100,0,{size:0.6,mix:0.08}],["out","output",101,0,{level:0.45}]],
+  ["env1.out>osc1.freq:180","osc1.out>mix1.in1","noise1.out>mix1.in2","mix1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>drive1.in","drive1.out>rev1.in","rev1.out>out.in"])},
  {name:"Snare",group:"Drums & Percussion",panel:"perc",desc:"Triangle body with a small pitch drop and plenty of filtered noise. The keys tune the body of the hit.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"triangle",oct:-1}],["noise1","noise",1,1],["mix1","mixer",2,0,{l1:0.4,l2:0.9,l3:0}],["flt1","ladder",3,0,{cutoff:6500,res:0.05}],["amp1","vca",4,0],
    ["env1","adsr",2,1,{a:0.001,d:0.06,s:0,r:0.05}],["env2","adsr",4,1,{a:0.001,d:0.17,s:0,r:0.08}],["rev1","reverb",100,0,{size:0.9,mix:0.18}],["out","output",101,0,{level:0.4}]],
@@ -724,15 +724,15 @@ const PRESETS=[
  {name:"Prophet-5 – One of My Turns (intro)",group:"Leads & Brass",panel:"sync",desc:"A saw in oscillator sync whose ratio drops on every note (the “Poly-Mod”), medium filter, LFO scaled by the MOD wheel. A fan’s reconstruction, not verified against the record.",make:()=>mk(
   [["kbd","keyin",0,0],["sy1","syncosc",1,0,{ratio:2.2}],["flt1","ladder",2,0,{cutoff:1700,res:0.18}],["amp1","vca",3,0],
    ["env1","adsr",1,1.2,{a:0.12,d:2,s:0,r:0.3}],["env2","adsr",3,1.2,{a:0.004,d:0.01,s:1,r:0.06}],["lfo1","lfo",0,1.2,{rate:3.2}],["wheel1","modwheel",0,2.2],["vib1","vca",2,1.2],
-   ["rev1","reverb",100,0,{size:1.8,mix:0.15}],["out","output",101,0,{level:0.2}]],
+   ["drive1","drive",100,1,{trim:-11,drive:0.2,tone:9000,mix:1}],["rev1","reverb",100,0,{size:1.8,mix:0.15}],["out","output",101,0,{level:0.2}]],
   ["kbd.pitch>sy1.freq","kbd.pitch>flt1.cutoffMod:3","env1.out>sy1.ratio:5.5","sy1.out>flt1.in","lfo1.out>vib1.in","wheel1.out>vib1.gain","vib1.out>flt1.cutoffMod:900",
-   "flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
+   "flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>drive1.in","drive1.out>rev1.in","rev1.out>out.in"])},
  {name:"Prophet-5 – Sync Lead (Run Like Hell)",group:"Leads & Brass",panel:"sync",desc:"The same synced oscillator with a fast envelope that stays partly open: the cutting lead of the solo. One source ties the Prophet’s synced solo to this track.",make:()=>mk(
   [["kbd","keyin",0,0],["sy1","syncosc",1,0,{ratio:1.6}],["flt1","ladder",2,0,{cutoff:3600,res:0.25}],["amp1","vca",3,0],
    ["env1","adsr",1,1.2,{a:0.002,d:0.9,s:0.35,r:0.2}],["env2","adsr",3,1.2,{a:0.004,d:0.01,s:1,r:0.08}],["lfo1","lfo",0,1.2,{rate:5.5}],["wheel1","modwheel",0,2.2],["vib1","vca",2,1.2],
-   ["rev1","reverb",100,0,{size:1.2,mix:0.12}],["out","output",101,0,{level:0.2}]],
+   ["drive1","drive",100,1,{trim:-12,drive:0.4,tone:9000,mix:1}],["rev1","reverb",100,0,{size:1.2,mix:0.12}],["out","output",101,0,{level:0.2}]],
   ["kbd.pitch>sy1.freq","kbd.pitch>flt1.cutoffMod:3","env1.out>sy1.ratio:3.5","sy1.out>flt1.in","lfo1.out>vib1.in","wheel1.out>vib1.gain","vib1.out>flt1.cutoffMod:900",
-   "flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
+   "flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>drive1.in","drive1.out>rev1.in","rev1.out>out.in"])},
  {name:"ARP String Ensemble – Violins",group:"Strings & Pads",noVel:true,panel:"pad",desc:"Three saws, slow attack, long release, open filter and two choruses at different speeds in place of the original’s three delay lines. No phaser.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth"}],["osc2","osc",1,1,{wave:"sawtooth"}],["osc3","osc",1,2,{wave:"sawtooth",oct:1}],["mix1","mixer",2,0,{l1:0.5,l2:0.5,l3:0.25}],
    ["lfo1","lfo",2,1.4,{rate:5.2}],["flt1","ladder",3,0,{cutoff:4500,res:0}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.3,d:1,s:0.9,r:1}],["env2","adsr",4,1,{a:0.3,d:0.3,s:1,r:1.2}],
@@ -751,22 +751,22 @@ const PRESETS=[
    ["noise1","noise",0,1.2],["hpf1","hpf",0,2,{cutoff:3000,res:0.1}],["ampP","vca",3,0],["ampC","vca",3,1.3],
    ["envP","adsr",4,0,{a:0.001,d:0.22,s:0,r:0.05}],["envC","adsr",4,1.3,{a:0.001,d:0.012,s:0,r:0.005}],["env2","adsr",4,2.3,{a:0.004,d:0.01,s:1,r:0.03}],
    ["amp1","vca",5,0],["lfo1","lfo",5,1.3,{rate:0.8}],["trem","vca",5,2.3],
-   ["cho1","chorus",100,0,{rate:0.8,depth:0.55,mix:0.5}],["rev1","reverb",101,0,{size:1,mix:0.15}],["out","output",102,0,{level:0.08}]],
+   ["drive1","drive",100,1,{trim:-24,drive:0.35,tone:6000,mix:1}],["cho1","chorus",100,0,{rate:0.8,depth:0.55,mix:0.5}],["rev1","reverb",101,0,{size:1,mix:0.15}],["out","output",102,0,{level:0.08}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","kbd.pitch>osc4.freq","kbd.pitch>osc5.freq","kbd.pitch>osc6.freq",
    "osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","mix1.out>mix2.in1","osc4.out>mix2.in2","osc5.out>mix2.in3","mix2.out>mix3.in1",
    "osc6.out>ampP.in","envP.out>ampP.gain","ampP.out>mix3.in2","noise1.out>hpf1.in","hpf1.out>ampC.in","envC.out>ampC.gain","ampC.out>mix3.in3",
-   "mix3.out>amp1.in","env2.out>amp1.gain","lfo1.out>trem.in","env2.out>trem.gain","trem.out>amp1.gain:0.06","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
+   "mix3.out>amp1.in","env2.out>amp1.gain","lfo1.out>trem.in","env2.out>trem.gain","trem.out>amp1.gain:0.06","amp1.out>drive1.in","drive1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
  {name:"Hammond C3 – 888000000 (Fast Leslie)",group:"Organs",noVel:true,panel:"hammond",desc:"Same registration with the “fast” Leslie: quicker tremolo and chorus (about 6–7 Hz, approximate value).",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sine",oct:-1}],["osc2","osc",1,0.5,{wave:"sine",oct:-1,semi:7}],["osc3","osc",1,1,{wave:"sine"}],["osc4","osc",1,1.5,{wave:"sine",oct:1}],["osc5","osc",1,2,{wave:"sine",oct:2}],["osc6","osc",1,2.5,{wave:"sine",oct:1,semi:7}],
    ["mix1","mixer",2,0,{l1:1,l2:1,l3:1}],["mix2","mixer",2,1.3,{l1:1,l2:0,l3:0}],["mix3","mixer",2,2.3,{l1:1,l2:0.55,l3:0.12}],
    ["noise1","noise",0,1.2],["hpf1","hpf",0,2,{cutoff:3000,res:0.1}],["ampP","vca",3,0],["ampC","vca",3,1.3],
    ["envP","adsr",4,0,{a:0.001,d:0.22,s:0,r:0.05}],["envC","adsr",4,1.3,{a:0.001,d:0.012,s:0,r:0.005}],["env2","adsr",4,2.3,{a:0.004,d:0.01,s:1,r:0.03}],
    ["amp1","vca",5,0],["lfo1","lfo",5,1.3,{rate:6.7}],["trem","vca",5,2.3],
-   ["cho1","chorus",100,0,{rate:6.3,depth:0.35,mix:0.5}],["rev1","reverb",101,0,{size:1,mix:0.15}],["out","output",102,0,{level:0.08}]],
+   ["drive1","drive",100,1,{trim:-24,drive:0.4,tone:6000,mix:1}],["cho1","chorus",100,0,{rate:6.3,depth:0.35,mix:0.5}],["rev1","reverb",101,0,{size:1,mix:0.15}],["out","output",102,0,{level:0.08}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","kbd.pitch>osc4.freq","kbd.pitch>osc5.freq","kbd.pitch>osc6.freq",
    "osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>mix1.in3","mix1.out>mix2.in1","osc4.out>mix2.in2","osc5.out>mix2.in3","mix2.out>mix3.in1",
    "osc6.out>ampP.in","envP.out>ampP.gain","ampP.out>mix3.in2","noise1.out>hpf1.in","hpf1.out>ampC.in","envC.out>ampC.gain","ampC.out>mix3.in3",
-   "mix3.out>amp1.in","env2.out>amp1.gain","lfo1.out>trem.in","env2.out>trem.gain","trem.out>amp1.gain:0.1","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
+   "mix3.out>amp1.in","env2.out>amp1.gain","lfo1.out>trem.in","env2.out>trem.gain","trem.out>amp1.gain:0.1","amp1.out>drive1.in","drive1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
  {name:"Farfisa Compact – Flute, Oboe, Flute 4′",group:"Organs",noVel:true,panel:"combo",desc:"Registration from published sources for this organ: 8′ flute (triangle), 8′ oboe (square), 4′ flute with fast vibrato and spring reverb. Reg. 1 = 8′ flute, 2 = oboe, 3 = 4′ flute.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"triangle"}],["osc2","osc",1,1,{wave:"square"}],["osc3","osc",1,2,{wave:"triangle",oct:1}],["mix1","mixer",2,0,{l1:0.9,l2:0.45,l3:0.7}],
    ["flt1","ladder",3,0,{cutoff:4200,res:0.08}],["amp1","vca",4,0],["env1","adsr",3,1.3,{a:0.004,d:0.01,s:1,r:0.05}],["lfo1","lfo",2,1.6,{rate:6.3}],
@@ -776,9 +776,9 @@ const PRESETS=[
  {name:"Farfisa Compact – Booster",group:"Organs",noVel:true,panel:"combo",desc:"The “Multi-Tone Booster”: 8′ and 4′ square waves plus a high-passed square for the harsh bite. Reg. 1 = 8′, 2 = 4′, 3 = booster.",make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"square"}],["osc2","osc",1,1,{wave:"square",oct:1}],["osc3","osc",1,2,{wave:"square"}],["hpf1","hpf",2,1.5,{cutoff:2800,res:0.2}],
    ["mix1","mixer",2,0,{l1:0.7,l2:0.4,l3:0.6}],["flt1","ladder",3,0,{cutoff:5500,res:0.05}],["amp1","vca",4,0],["env1","adsr",3,1.3,{a:0.004,d:0.01,s:1,r:0.05}],["lfo1","lfo",3,2.3,{rate:5.6}],
-   ["rev1","reverb",100,0,{size:1.4,mix:0.28}],["out","output",101,0,{level:0.24}]],
+   ["drive1","drive",100,1,{trim:-12.5,drive:0.45,tone:8000,mix:1}],["rev1","reverb",100,0,{size:1.4,mix:0.28}],["out","output",101,0,{level:0.24}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","kbd.pitch>osc3.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","osc3.out>hpf1.in","hpf1.out>mix1.in3","lfo1.out>osc1.freq:1.5","lfo1.out>osc2.freq:1.5","lfo1.out>osc3.freq:1.5",
-   "mix1.out>flt1.in","flt1.out>amp1.in","env1.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
+   "mix1.out>flt1.in","flt1.out>amp1.in","env1.out>amp1.gain","amp1.out>drive1.in","drive1.out>rev1.in","rev1.out>out.in"])},
  {name:"Fender Rhodes – Mark I",group:"Electric Pianos",panel:"rhodes",desc:"DX-style FM approximation: the “bar” tone mellows as it decays, with a short tine “ping” and stereo chorus.",make:()=>mk(
   [["kbd","keyin",0,0],["fm1","fm",1,0,{ratio:1,index:0.3}],["osc2","osc",1,1.2,{wave:"sine",oct:2,semi:7,detune:18}],["ampT","vca",2,1.2],["env3","adsr",2,2.2,{a:0.001,d:0.12,s:0,r:0.05}],["env1","adsr",1,2.2,{a:0.002,d:0.55,s:0,r:0.3}],
    ["mix1","mixer",2,0,{l1:1,l2:0.12,l3:0}],["flt1","ladder",3,0,{cutoff:6500,res:0}],["amp1","vca",4,0],["env2","adsr",3,1.2,{a:0.002,d:2.2,s:0,r:0.3}],["lfo1","lfo",4,1.2,{rate:4.8}],["trem","vca",4,2.2],
@@ -788,9 +788,9 @@ const PRESETS=[
  {name:"Fender Rhodes – Suitcase (Tremolo)",group:"Electric Pianos",panel:"rhodes",desc:"More bite (higher index) and the amplitude tremolo of amp-equipped Rhodes: set the depth in the Tremolo section.",make:()=>mk(
   [["kbd","keyin",0,0],["fm1","fm",1,0,{ratio:1,index:0.45}],["osc2","osc",1,1.2,{wave:"sine",oct:2,semi:7,detune:18}],["ampT","vca",2,1.2],["env3","adsr",2,2.2,{a:0.001,d:0.1,s:0,r:0.05}],["env1","adsr",1,2.2,{a:0.002,d:0.45,s:0,r:0.3}],
    ["mix1","mixer",2,0,{l1:1,l2:0.2,l3:0}],["flt1","ladder",3,0,{cutoff:7500,res:0}],["amp1","vca",4,0],["env2","adsr",3,1.2,{a:0.002,d:1.8,s:0,r:0.25}],["lfo1","lfo",4,1.2,{rate:5}],["trem","vca",4,2.2],
-   ["cho1","chorus",100,0,{rate:0.6,depth:0.35,mix:0.25}],["rev1","reverb",101,0,{size:1.4,mix:0.15}],["out","output",102,0,{level:0.28}]],
+   ["drive1","drive",100,1,{trim:-14.5,drive:0.3,tone:7000,mix:1}],["cho1","chorus",100,0,{rate:0.6,depth:0.35,mix:0.25}],["rev1","reverb",101,0,{size:1.4,mix:0.15}],["out","output",102,0,{level:0.28}]],
   ["kbd.pitch>fm1.freq","kbd.pitch>osc2.freq","env1.out>fm1.index:3.2","fm1.out>mix1.in1","osc2.out>ampT.in","env3.out>ampT.gain","ampT.out>mix1.in2","mix1.out>flt1.in","flt1.out>amp1.in","env2.out>amp1.gain","lfo1.out>trem.in","env2.out>trem.gain","trem.out>amp1.gain:0.25",
-   "amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])}
+   "amp1.out>drive1.in","drive1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])}
 ,
  {name:"Arp – Dry Pluck",group:"Arpeggiator",panel:"mini",desc:"Instant attack, very short decay and release: each note is a dry tap. The filter opens and closes in a flash.",arp:{on:true,mode:"up",div:"1/16",bpm:120,oct:2,gate:0.45,swing:0},make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",oct:0,detune:0}],["osc2","osc",1,1,{wave:"square",oct:0,detune:-6}],["mix1","mixer",2,0,{l1:0.55,l2:0.4,l3:0}],["flt1","ladder",3,0,{cutoff:650,res:0.25}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.001,d:0.13,s:0,r:0.05}],["env2","adsr",4,1,{a:0.001,d:0.15,s:0,r:0.06}],["dly1","delay",100,0,{time:0.4,fb:0.3,mix:0.22,sync:"1/8"}],["rev1","reverb",101,0,{size:1.2,mix:0.12}],["out","output",102,0,{level:0.3}]],
@@ -799,8 +799,8 @@ const PRESETS=[
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"square",oct:0,detune:0}],["osc2","osc",1,1,{wave:"sawtooth",oct:1,detune:5}],["mix1","mixer",2,0,{l1:0.5,l2:0.3,l3:0}],["flt1","ladder",3,0,{cutoff:1100,res:0.4}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.001,d:0.08,s:0,r:0.03}],["env2","adsr",4,1,{a:0.001,d:0.09,s:0,r:0.04}],["dly1","delay",100,0,{time:0.4,fb:0.25,mix:0.18,sync:"1/8."}],["rev1","reverb",101,0,{size:0.9,mix:0.08}],["out","output",102,0,{level:0.28}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3600","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>dly1.in","dly1.out>rev1.in","rev1.out>out.in"])},
  {name:"Arp – Sequencer Bass",group:"Arpeggiator",panel:"mini",desc:"Saw and square an octave down, closed filter with a fast pluck: the classic repeated-note bass.",arp:{on:true,mode:"up",div:"1/16",bpm:118,oct:1,gate:0.5,swing:0},make:()=>mk(
-  [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",oct:-1,detune:0}],["osc2","osc",1,1,{wave:"square",oct:-1,detune:4}],["mix1","mixer",2,0,{l1:0.6,l2:0.45,l3:0}],["flt1","ladder",3,0,{cutoff:380,res:0.35}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.001,d:0.11,s:0,r:0.05}],["env2","adsr",4,1,{a:0.001,d:0.14,s:0,r:0.06}],["rev1","reverb",100,0,{size:0.8,mix:0.06}],["out","output",101,0,{level:0.32}]],
-  ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3000","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>rev1.in","rev1.out>out.in"])},
+  [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"sawtooth",oct:-1,detune:0}],["osc2","osc",1,1,{wave:"square",oct:-1,detune:4}],["mix1","mixer",2,0,{l1:0.6,l2:0.45,l3:0}],["flt1","ladder",3,0,{cutoff:380,res:0.35}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.001,d:0.11,s:0,r:0.05}],["env2","adsr",4,1,{a:0.001,d:0.14,s:0,r:0.06}],["drive1","drive",100,1,{trim:-3.5,drive:0.4,tone:7000,mix:1}],["rev1","reverb",100,0,{size:0.8,mix:0.06}],["out","output",101,0,{level:0.32}]],
+  ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:3000","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>drive1.in","drive1.out>rev1.in","rev1.out>out.in"])},
  {name:"Arp – Soft Flute",group:"Arpeggiator",panel:"mini",desc:"Triangle and sine an octave up, nearly open filter and little resonance: round, delicate notes with a small tail.",arp:{on:true,mode:"updown",div:"1/8",bpm:96,oct:2,gate:0.8,swing:0},make:()=>mk(
   [["kbd","keyin",0,0],["osc1","osc",1,0,{wave:"triangle",oct:0,detune:0}],["osc2","osc",1,1,{wave:"sine",oct:1,detune:0}],["mix1","mixer",2,0,{l1:0.7,l2:0.35,l3:0}],["flt1","ladder",3,0,{cutoff:2400,res:0.05}],["amp1","vca",4,0],["env1","adsr",3,1,{a:0.02,d:0.35,s:0,r:0.3}],["env2","adsr",4,1,{a:0.025,d:0.4,s:0,r:0.35}],["cho1","chorus",100,0,{rate:0.6,depth:0.4,mix:0.3}],["rev1","reverb",101,0,{size:2.2,mix:0.28}],["out","output",102,0,{level:0.3}]],
   ["kbd.pitch>osc1.freq","kbd.pitch>osc2.freq","osc1.out>mix1.in1","osc2.out>mix1.in2","mix1.out>flt1.in","env1.out>flt1.cutoffMod:700","flt1.out>amp1.in","env2.out>amp1.gain","amp1.out>cho1.in","cho1.out>rev1.in","rev1.out>out.in"])},
@@ -1053,25 +1053,25 @@ TEMPLATES.sync={name:"Prophet Style",need:["sy1","flt1","env2"],sections:[
   ["Poly-Mod Envelope",ENV("env1")],
   ["Filter",[["flt1","cutoff","Cutoff"],["flt1","res","Emphasis"]]],
   ["Mod Wheel",[["lfo1","rate","LFO Rate"],["vib1>flt1.cutoffMod","amount","To Filter"]]],
-  ["Amplifier",ENV("env2")],["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
+  ["Amplifier",ENV("env2")],["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Drive",[["drive1","drive","Drive"],["drive1","tone","Tone"],["drive1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
 TEMPLATES.combo={name:"Farfisa Style",need:["osc1","mix1","env1"],sections:[
   ["Registers",[["mix1","l1","Reg. 1","bar"],["mix1","l2","Reg. 2","bar"],["mix1","l3","Reg. 3","bar"]]],
   ["Timbre",[["flt1","cutoff","Cutoff"],["flt1","res","Emphasis"]]],
   ["Vibrato",[["lfo1","rate","Rate"],["lfo1>*.freq","amount","Depth"]]],
   ["Envelope",[["env1","a","Attack"],["env1","r","Release"]]],
-  ["Spring Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
+  ["Spring Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Drive",[["drive1","drive","Drive"],["drive1","tone","Tone"],["drive1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
 TEMPLATES.hammond={name:"Hammond Style",need:["osc1","mix1","mix3","env2"],sections:[
   ["Drawbar",[["mix1","l1","16'","bar"],["mix1","l2","5⅓'","bar"],["mix1","l3","8'","bar"],["mix2","l2","4'","bar"],["mix2","l3","2'","bar"]]],
   ["Percussion",[["mix3","l2","3rd Harmonic","bar"],["envP","d","Decay"],["mix3","l3","Click","bar"]]],
   ["Leslie",[["lfo1","rate","Tremolo Rate"],["trem>amp1.gain","amount","Tremolo Depth"],["cho1","rate","Chorus Rate"],["cho1","depth","Chorus Depth"],["cho1","mix","Mix"]]],
-  ["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
+  ["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Overdrive",[["drive1","drive","Drive"],["drive1","tone","Tone"],["drive1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
 TEMPLATES.rhodes={name:"Rhodes Style",need:["fm1","env2"],sections:[
   ["Tone (Bar)",[["fm1","index","Index"],["env1>fm1.index","amount","Mellowness"],["env1","d","Tone Decay"]]],
   ["Tine",[["mix1","l2","Level"],["osc2","detune","Tuning"],["env3","d","Decay"]]],
   ["Body",[["env2","d","Note Decay"],["env2","r","Release"],["flt1","cutoff","Timbre"]]],
   ["Tremolo",[["lfo1","rate","Rate"],["trem>amp1.gain","amount","Depth"]]],
   ["Chorus",[["cho1","rate","Rate"],["cho1","depth","Depth"],["cho1","mix","Mix"]]],
-  ["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
+  ["Reverb",[["rev1","size","Size"],["rev1","mix","Mix"]]],["Amp Drive",[["drive1","drive","Drive"],["drive1","tone","Tone"],["drive1","mix","Mix"]]],["Output",[["out","level","Level"]]]]};
 function presetGroups(){ const groups=[]; PRESETS.forEach((q,i)=>{ const g=q.group||"Basics"; let G=groups.find(x=>x[0]===g); if(!G){ G=[g,[]]; groups.push(G); } G[1].push('<option value="i'+i+'">'+q.name+'</option>'); });
   return groups.map(([g,o])=>'<optgroup label="'+g+'">'+o.join("")+'</optgroup>').join(""); }
 
