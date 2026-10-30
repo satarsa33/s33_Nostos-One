@@ -130,6 +130,10 @@ README.md                questo file
 
 Il service worker risponde dalla cache e si aggiorna in silenzio quando c'è rete: dopo aver pubblicato una modifica, la versione nuova compare **alla seconda apertura**. Per forzare il rinnovo cambia `VERSIONE` in `sw.js`.
 
+### Identificativo dell'app
+
+Chrome identifica una PWA dal campo `id` del manifest, che viene risolto **rispetto all'origine del sito** (non alla cartella). Se più app stanno sotto lo stesso `utente.github.io`, ognuna deve avere un `id` diverso (qui `s33-nostos-one`); con `"id": "./"` tutte risulterebbero la stessa app e Chrome non proporrebbe "Installa", ma "Apri nell'app".
+
 ### Dati salvati nel browser (`localStorage`)
 
 `synth-lavagna-v3` (patch corrente), `synth-user-presets`, `synth-mon-w` (larghezza dei monitor), `synth-skin` (veste), `synth-vel` (dinamica).
