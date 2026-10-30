@@ -78,10 +78,16 @@ input[type=range]{width:100%;accent-color:var(--acc)}
 .tc .kns{max-width:520px}
 .brk{flex-basis:100%;height:0}
 .arp .ch{align-items:center}
-.arpk{align-items:flex-start;gap:16px}
-.arpk>.tgl{margin-top:30px}
+.arpk{align-items:flex-start;gap:14px}
+#tools{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+#tools>.pn-card{flex:1 1 auto;margin:0!important}
+.stk{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.arpk>.stk.b{margin-top:14px}
+.stk .tgl{padding:6px 12px;white-space:nowrap}
+.stk .kn.sl{width:112px}.stk .kn.sl select{width:100%;margin:0!important}
+.arpk>.kn.vled{width:86px}.arpk>.kn.vled .octled{margin-top:11px}
 #velLed.fl b{opacity:.25;transition:none}
-.arpk>.kn.sl{width:108px}
+.arpk>.kn.sl{width:100px}
 .arpk>.kn.sl select{width:100%;margin:17px 0 0!important}
 .tgl{border-radius:999px;padding:6px 16px;font-weight:700;letter-spacing:.08em;font-size:12px}
 .tgl.on{background:var(--f-mod);border-color:var(--f-mod);color:#fff;box-shadow:0 0 14px color-mix(in srgb,var(--f-mod) 60%,transparent)}
@@ -214,8 +220,7 @@ input[type=range]{width:100%;accent-color:var(--acc)}
     <div class="mon" style="flex-grow:1.5"><canvas id="spec"></canvas></div>
   </div>
   <div class="pn-bar hide" id="pmBar"><span>Vista</span><button data-pm="model">Modello</button><button data-pm="auto">Automatica</button></div>
-  <div id="arpBar" class="pn-card arp" style="margin-bottom:12px"></div>
-  <div id="velBar" class="pn-card arp" style="margin-bottom:12px"></div>
+  <div id="tools"><div id="arpBar" class="pn-card arp"></div><div id="velBar" class="pn-card arp"></div></div>
   <div id="cards"></div>
   <div class="pn-keys">
     <div class="wh"><div class="wheel" id="wPitch"><i></i></div><div class="wlab">PITCH</div></div>
@@ -958,12 +963,13 @@ function renderArp(){
   const el=document.getElementById("arpBar"); if(!el) return; const A=ARP(); el.innerHTML=""; el.style.setProperty("--fc","var(--f-mod)");
   el.insertAdjacentHTML("beforeend",`<div class="ch"><b>Arpeggiatore</b><i class="led" id="arpLed"></i><span>${A.on?"attivo":"spento"}</span></div>`);
   const w=document.createElement("div"); w.className="kns arpk"; el.appendChild(w);
+  const s1=document.createElement("div"), s2=document.createElement("div"); s1.className="stk b"; s2.className="stk"; w.appendChild(s1); w.appendChild(s2);
   const tg=(txt,key,fn)=>{ const b=document.createElement("button"); b.className="tgl"+(A[key]?" on":""); b.textContent=txt;
-    b.onclick=()=>{ A[key]=!A[key]; fn&&fn(); save(); renderArp(); }; w.appendChild(b); };
+    b.onclick=()=>{ A[key]=!A[key]; fn&&fn(); save(); renderArp(); }; s1.appendChild(b); };
   tg("ARP","on",()=>arpSync()); tg("LATCH","latch",()=>{ if(!A.latch) arpHeld=arpHeld.filter(n=>arpDown.has(n)); });
   const sl=(label,key,opts)=>{ const d=document.createElement("div"); d.className="kn sl";
-    d.innerHTML=`<div class="l">${label}</div><select style="margin:14px 0">${opts.map(([v,t])=>`<option value="${v}"${v===A[key]?" selected":""}>${t}</option>`).join("")}</select>`;
-    d.querySelector("select").onchange=e=>{ A[key]=e.target.value; save(); e.target.blur(); }; w.appendChild(d); };
+    d.innerHTML=`<div class="l">${label}</div><select>${opts.map(([v,t])=>`<option value="${v}"${v===A[key]?" selected":""}>${t}</option>`).join("")}</select>`;
+    d.querySelector("select").onchange=e=>{ A[key]=e.target.value; save(); e.target.blur(); }; s2.appendChild(d); };
   sl("modo","mode",[["up","Su"],["down","Giù"],["updown","Su-giù"],["random","Casuale"],["order","Ordine"]]);
   sl("divisione","div",[["1/4","1/4"],["1/8","1/8"],["1/8T","1/8 terzine"],["1/16","1/16"],["1/16T","1/16 terzine"],["1/32","1/32"]]);
   const k=(label,key,min,max,step,unit)=>knob(w,label,A,key,min,max,step,unit,false,()=>{ if(key==="bpm") refreshDelays(); },"mod");
@@ -975,14 +981,15 @@ function renderVel(){
   const el=document.getElementById("velBar"); if(!el) return; el.innerHTML=""; el.style.setProperty("--fc","var(--f-src)");
   el.insertAdjacentHTML("beforeend",`<div class="ch"><b>Dinamica del tocco</b><span>${!VEL.on?"disattivata":(patch.noVel?"ignorata da questo preset":"attiva")}</span></div>`);
   const w=document.createElement("div"); w.className="kns arpk"; el.appendChild(w);
-  const tg=(txt,on,fn)=>{ const b=document.createElement("button"); b.className="tgl"+(on?" on":""); b.textContent=txt; b.onclick=()=>{ fn(); renderVel(); }; w.appendChild(b); };
+  const s1=document.createElement("div"); s1.className="stk b"; w.appendChild(s1);
+  const tg=(txt,on,fn)=>{ const b=document.createElement("button"); b.className="tgl"+(on?" on":""); b.textContent=txt; b.onclick=()=>{ fn(); renderVel(); }; s1.appendChild(b); };
   tg("DINAMICA",VEL.on,()=>{ VEL.on=!VEL.on; saveVel(); });
   tg("QUESTO PRESET",!patch.noVel,()=>{ if(patch.noVel) delete patch.noVel; else patch.noVel=true; patch.mod=true; save(); updateMon&&updateMon(); });
   const d=document.createElement("div"); d.className="kn sl"; d.innerHTML=`<div class="l">curva</div><select>${["morbida","normale","dura"].map(c=>`<option${c===VEL.curve?" selected":""}>${c}</option>`).join("")}</select>`;
   d.querySelector("select").onchange=e=>{ VEL.curve=e.target.value; saveVel(); e.target.blur(); }; w.appendChild(d);
   knob(w,"volume",VEL,"vol",0,1,0.01,"",false,saveVel,"src"); knob(w,"brillantezza",VEL,"bright",0,1,0.01,"",false,saveVel,"src");
-  const led=document.createElement("div"); led.className="kn"; led.style.width="86px";
-  led.innerHTML=`<div class="l">ultimo tocco</div><div id="velLed" class="octled" style="width:80px;margin-top:17px"><b id="velV">---</b><span>VELOCITY</span></div>`; w.appendChild(led);
+  const led=document.createElement("div"); led.className="kn vled";
+  led.innerHTML=`<div class="l">ultimo tocco</div><div id="velLed" class="octled" style="width:80px"><b id="velV">---</b><span>VELOCITY</span></div>`; w.appendChild(led);
 }
 /* ---------- Altri modelli: Organo e Percussioni ---------- */
 const amtR=(tp,src)=>tp==="cutoffMod"?[-8000,8000,10," Hz"]:tp==="index"?[-10,10,0.1,""]:(tp==="freq"&&src==="adsr")?[-400,400,1," Hz"]:tp==="gain"?[-1,1,0.01,""]:tp==="ratio"?[-8,8,0.05,""]:[-100,100,0.5," Hz"];
