@@ -122,7 +122,7 @@ Il file contiene solo dati, mai codice.
 index.html               l'intera applicazione (HTML, CSS e JavaScript)
 manifest.webmanifest     nome, icone e colori dell'app
 sw.js                    service worker: funzionamento offline
-icons/                   icone (192, 512, maskable, Apple touch, favicon, SVG sorgente)
+icons/                   icone PNG (192, 512, maskable, Apple touch, favicon); icon.svg è solo il sorgente e non serve per far funzionare l'app
 README.md                questo file
 ```
 

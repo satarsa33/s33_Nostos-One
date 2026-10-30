@@ -2,16 +2,17 @@
    Strategia: i file dell'app sono salvati alla prima visita; poi si risponde dalla cache
    e, se c'è rete, la cache si aggiorna in silenzio (la versione nuova compare al riavvio successivo).
    Per forzare un rinnovo completo, cambia il numero di VERSIONE qui sotto. */
-const VERSIONE = "1.2.0";
+const VERSIONE = "1.2.1";
 const CACHE = "nostos-one-" + VERSIONE;
 const FILE = [
   "./", "./index.html", "./manifest.webmanifest",
-  "./icons/icon.svg", "./icons/icon-192.png", "./icons/icon-512.png",
+  "./icons/icon-192.png", "./icons/icon-512.png",
   "./icons/icon-maskable-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-32.png"
 ];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILE)).then(() => self.skipWaiting()));
+  /* un file mancante non deve far fallire l'installazione: si salva ciò che c'è, ognuno per conto suo */
+  e.waitUntil(caches.open(CACHE).then(c => Promise.allSettled(FILE.map(f => c.add(f)))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", e => {
